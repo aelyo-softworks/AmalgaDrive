@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-namespace AmalgaDrive.DavServer.Utilities
+namespace AmalgaDrive.DavServer
 {
     internal static class Extensions
     {

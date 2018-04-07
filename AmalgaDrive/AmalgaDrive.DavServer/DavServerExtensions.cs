@@ -1,20 +1,24 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Xml;
-using AmalgaDrive.DavServer.FileSystems.Local;
-using AmalgaDrive.DavServer.Model;
+using AmalgaDrive.DavServer.Controllers;
+using AmalgaDrive.DavServer.FileSystem;
+using AmalgaDrive.DavServer.FileSystem.Local;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AmalgaDrive.DavServer.Utilities
+namespace AmalgaDrive.DavServer
 {
     public static class DavServerExtensions
     {
         public const string DavServerConfigPath = "DavServer:FileSystem:";
+        public const string DavNamespaceUri = "DAV:";
+        public const string DavNamespacePrefix = "D";
+        public const string MsNamespaceUri = "urn:schemas-microsoft-com:";
+        public const string MsNamespacePrefix = "Z";
+        public const int MultiStatusCode = 207;
+        public const string DesktopIni = "desktop.ini";
 
         public static void AddDavServer(this IServiceCollection services, IConfiguration configuration)
         {
@@ -42,14 +46,34 @@ namespace AmalgaDrive.DavServer.Utilities
             });
         }
 
-        public static void WriteProperties(this IFileSystemInfo info, XmlTextWriter writer)
+        public static string GetContentType(this IFileSystemInfo info)
         {
             if (info == null)
                 throw new ArgumentNullException(nameof(info));
 
-            if (writer == null)
-                throw new ArgumentNullException(nameof(writer));
+            if (info is IFileInfo fi)
+                return fi.ContentType;
 
+            return null;
+        }
+
+        public static long GetContentLength(this IFileSystemInfo info)
+        {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
+            if (info is IFileInfo fi)
+                return fi.Length;
+
+            return 0;
+        }
+
+        public static Uri GetHRef(this IFileSystemInfo info)
+        {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
+            return new Uri("http://localhost:61786/dav/" + info.Name);
         }
 
         public static IEnumerable<IFileSystemInfo> EnumerateFileSysteminfo(this IFileSystem fileSystem, int depth)
@@ -91,7 +115,16 @@ namespace AmalgaDrive.DavServer.Utilities
             // infinity is not supported (no recursion)
         }
 
-        public static int GetDepthHeader(this HttpRequest request)
+        public static bool Translate(this HttpRequest request)
+        {
+            if (request == null)
+                return false;
+
+            string translate = request.Headers["translate"];
+            return string.IsNullOrWhiteSpace(translate) || !translate.EqualsIgnoreCase("f");
+        }
+
+        public static int GetDepth(this HttpRequest request)
         {
             if (request == null)
                 return int.MaxValue;

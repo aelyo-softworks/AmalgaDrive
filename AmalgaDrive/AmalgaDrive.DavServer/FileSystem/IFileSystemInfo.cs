@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace AmalgaDrive.DavServer.Model
+namespace AmalgaDrive.DavServer.FileSystem
 {
     public interface IFileSystemInfo
     {

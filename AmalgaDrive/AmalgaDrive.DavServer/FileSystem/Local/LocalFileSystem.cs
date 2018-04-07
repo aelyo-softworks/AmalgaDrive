@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using AmalgaDrive.DavServer.Model;
-using AmalgaDrive.DavServer.Utilities;
 
-namespace AmalgaDrive.DavServer.FileSystems.Local
+namespace AmalgaDrive.DavServer.FileSystem.Local
 {
     public class LocalFileSystem : IFileSystem
     {

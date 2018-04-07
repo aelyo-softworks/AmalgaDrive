@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace AmalgaDrive.DavServer
+namespace AmalgaDrive.DavServerSite
 {
     public class Program
     {

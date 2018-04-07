@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AmalgaDrive.DavServer.Model
+namespace AmalgaDrive.DavServer.FileSystem
 {
     public interface IFileSystem
     {
