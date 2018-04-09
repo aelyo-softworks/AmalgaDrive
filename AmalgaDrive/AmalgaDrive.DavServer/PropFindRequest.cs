@@ -8,18 +8,18 @@ using AmalgaDrive.DavServer.FileSystem;
 
 namespace AmalgaDrive.DavServer
 {
-    public class DavRequest
+    public class PropFindRequest
     {
         public static readonly XmlNamespaceManager NsMgr;
 
-        static DavRequest()
+        static PropFindRequest()
         {
             NsMgr = new XmlNamespaceManager(new NameTable());
             NsMgr.AddNamespace(DavServerExtensions.DavNamespacePrefix, DavServerExtensions.DavNamespaceUri);
             NsMgr.AddNamespace(DavServerExtensions.MsNamespacePrefix, DavServerExtensions.MsNamespaceUri);
         }
 
-        public DavRequest(XmlDocument document)
+        public PropFindRequest(XmlDocument document)
         {
             if (document == null)
                 throw new ArgumentNullException(nameof(document));

@@ -48,5 +48,17 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
 
             Info.MoveTo(target);
         }
+
+        public virtual void CopyTo(string rootRelativePath, bool overwrite)
+        {
+            if (rootRelativePath == null)
+                throw new ArgumentNullException(nameof(rootRelativePath));
+
+            var target = Path.Combine(System.RootPath, rootRelativePath);
+            if (!System.IsChildPath(target))
+                throw new ArgumentException(null, nameof(rootRelativePath));
+
+            Info.CopyTo(target, overwrite);
+        }
     }
 }

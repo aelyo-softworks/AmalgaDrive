@@ -10,9 +10,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AmalgaDrive.DavServer.Controllers
 {
-    public class MultiStatusResult : IActionResult
+    public class PropFindResult : IActionResult
     {
-        public MultiStatusResult(IEnumerable<IFileSystemInfo> infos, ILogger logger, DavRequest request)
+        public PropFindResult(IEnumerable<IFileSystemInfo> infos, ILogger logger, PropFindRequest request)
         {
             if (infos == null)
                 throw new ArgumentNullException(nameof(infos));
@@ -30,7 +30,7 @@ namespace AmalgaDrive.DavServer.Controllers
 
         public IEnumerable<IFileSystemInfo> Infos { get; }
         public ILogger Logger { get; }
-        public DavRequest Request { get; }
+        public PropFindRequest Request { get; }
         public bool Debug { get; set; }
 
         public async Task ExecuteResultAsync(ActionContext context)
@@ -59,12 +59,12 @@ namespace AmalgaDrive.DavServer.Controllers
 
             using (var writer = XmlWriter.Create(stream, settings))
             {
-                await writer.WriteStartElementAsync(DavServerExtensions.DavNamespacePrefix, "multistatus", DavServerExtensions.DavNamespaceUri);
+                await writer.WriteStartElementAsync(null, "multistatus", DavServerExtensions.DavNamespaceUri);
                 foreach (var info in Infos)
                 {
-                    await writer.WriteStartElementAsync(DavServerExtensions.DavNamespacePrefix, "response", DavServerExtensions.DavNamespaceUri);
+                    await writer.WriteStartElementAsync(null, "response", DavServerExtensions.DavNamespaceUri);
                     var href = info.System.Options.GetPublicUri(context.HttpContext.Request, info);
-                    await writer.WriteElementStringAsync(DavServerExtensions.DavNamespacePrefix, "href", DavServerExtensions.DavNamespaceUri, href.ToString());
+                    await writer.WriteElementStringAsync(null, "href", DavServerExtensions.DavNamespaceUri, href.ToString());
                     await Request.WriteProperties(writer, info);
                     await writer.WriteEndElementAsync();
                 }

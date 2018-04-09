@@ -14,6 +14,7 @@ namespace AmalgaDrive.DavServer.FileSystem
         FileAttributes Attributes { get; set; }
 
         void Delete();
-        void MoveTo(string path);
+        void MoveTo(string rootRelativePath);
+        void CopyTo(string rootRelativePath, bool overwrite);
     }
 }

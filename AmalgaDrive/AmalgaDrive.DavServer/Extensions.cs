@@ -34,6 +34,42 @@ namespace AmalgaDrive.DavServer
             }
         }
 
+        public static void CopyDirectory(string source, string target)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            if (target == null)
+                throw new ArgumentNullException(nameof(target));
+
+            CopyDirectory(new DirectoryInfo(source), new DirectoryInfo(target));
+        }
+
+        public static void CopyDirectory(DirectoryInfo source, DirectoryInfo target)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            if (target == null)
+                throw new ArgumentNullException(nameof(target));
+
+            if (DirectoryExists(target.FullName))
+            {
+                Directory.CreateDirectory(target.FullName);
+            }
+
+            foreach (var file in source.EnumerateFiles())
+            {
+                file.CopyTo(Path.Combine(target.FullName, file.Name), true);
+            }
+
+            foreach (var dir in source.EnumerateDirectories())
+            {
+                var subDir = target.CreateSubdirectory(dir.Name);
+                CopyDirectory(dir, subDir);
+            }
+        }
+
         public static T GetValue<T>(this IDictionary<string, object> dictionary, string key, T defaultValue)
         {
             if (key == null)

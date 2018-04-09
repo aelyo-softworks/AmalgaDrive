@@ -49,13 +49,24 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
             Info.MoveTo(target);
         }
 
-        public virtual IDirectoryInfo Create(string name)
+        public virtual void CopyTo(string rootRelativePath, bool overwrite)
+        {
+            if (rootRelativePath == null)
+                throw new ArgumentNullException(nameof(rootRelativePath));
+
+            var target = Path.Combine(System.RootPath, rootRelativePath);
+            if (!System.IsChildPath(target))
+                throw new ArgumentException(null, nameof(rootRelativePath));
+
+            Extensions.CopyDirectory(Info.FullName, target);
+        }
+
+        public virtual void Create(string name)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
 
-            var di = Info.CreateSubdirectory(name);
-            return System.CreateDirectoryInfo(di);
+            Info.CreateSubdirectory(name);
         }
 
         public virtual IEnumerable<IDirectoryInfo> EnumerateDirectories()

@@ -22,7 +22,7 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
         }
 
         public string RootPath { get; private set; }
-        public DavServerOptions Options { get; }
+        public virtual DavServerOptions Options { get; }
         public override string ToString() => RootPath;
 
         public virtual LocalFileInfo CreateFileInfo(FileInfo info) => new LocalFileInfo(this, info);

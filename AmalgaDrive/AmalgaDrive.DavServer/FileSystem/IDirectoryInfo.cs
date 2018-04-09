@@ -9,6 +9,6 @@ namespace AmalgaDrive.DavServer.FileSystem
         IEnumerable<IFileInfo> EnumerateFiles();
         IEnumerable<IDirectoryInfo> EnumerateDirectories();
         void Delete(bool recursive);
-        IDirectoryInfo Create(string name);
+        void Create(string name);
     }
 }

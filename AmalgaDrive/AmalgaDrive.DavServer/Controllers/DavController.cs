@@ -6,7 +6,6 @@ using System.Threading;
 using System.Xml;
 using AmalgaDrive.DavServer.FileSystem;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 
 namespace AmalgaDrive.DavServer.Controllers
@@ -17,11 +16,35 @@ namespace AmalgaDrive.DavServer.Controllers
         {
             FileSystem = fileSystem;
             Logger = logger;
-            var x = HttpContext;
         }
 
         public IFileSystem FileSystem { get; }
         public ILogger<DavController> Logger { get; }
+
+        private void DumpRequestDocument()
+        {
+            var doc = GetRequestDocument();
+        }
+
+        private XmlDocument GetRequestDocument()
+        {
+            string xml;
+            using (var stream = Request.Body)
+            {
+                using (var reader = new StreamReader(Request.Body))
+                {
+                    xml = reader.ReadToEnd();
+                    Log("Xml: " + xml);
+                }
+            }
+
+            var doc = new XmlDocument();
+            if (!string.IsNullOrWhiteSpace(xml))
+            {
+                doc.LoadXml(xml);
+            }
+            return doc;
+        }
 
         private void Log(string text, [CallerMemberName] string methodName = null) => Logger.LogInformation(Thread.CurrentThread.ManagedThreadId + ":" + methodName + ": " + text);
 
@@ -55,6 +78,7 @@ namespace AmalgaDrive.DavServer.Controllers
         public IActionResult Options(string url = null)
         {
             Log("Url: " + url);
+            DumpRequestDocument();
             if (!CheckUrl(url))
                 return NotFound();
 
@@ -64,15 +88,33 @@ namespace AmalgaDrive.DavServer.Controllers
             return Ok();
         }
 
+        [HttpHead]
+        [Route("{*url}")]
+        public IActionResult Head(string url = null)
+        {
+            Log("Url: " + url);
+            DumpRequestDocument();
+            if (!CheckUrl(url, out var relativePath))
+                return NotFound();
+
+            if (!FileSystem.TryGetItem(relativePath, out var info))
+                return NotFound();
+
+            if (!(info is IFileInfo file))
+                return NoContent();
+
+            return new StreamResult(null, file.Name, file.GetContentType());
+        }
+
         [HttpGet]
         [Route("{*url}")]
         public IActionResult Get(string url = null)
         {
             Log("Url: " + url);
+            DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
-            Log("RelativePath: " + relativePath);
             if (!FileSystem.TryGetItem(relativePath, out var info))
                 return NotFound();
 
@@ -91,6 +133,7 @@ namespace AmalgaDrive.DavServer.Controllers
         public IActionResult Delete(string url = null)
         {
             Log("Url: " + url);
+            DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
@@ -103,8 +146,18 @@ namespace AmalgaDrive.DavServer.Controllers
                     return Unauthorized();
             }
 
-            info.Delete();
-            return Ok();
+            if (info.Attributes.HasFlag(FileAttributes.ReadOnly))
+                return Unauthorized();
+
+            try
+            {
+                info.Delete();
+                return Ok();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
         }
 
         [HttpCopy]
@@ -112,16 +165,52 @@ namespace AmalgaDrive.DavServer.Controllers
         public IActionResult Copy(string url = null)
         {
             Log("Url: " + url);
+            DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
-            return Ok();
+            var overwrite = Request.Headers["Overwrite"].ToString().EqualsIgnoreCase("t");
+            var destinationUrl = Request.Headers["Destination"].ToString();
+            if (string.IsNullOrWhiteSpace(destinationUrl))
+                return BadRequest();
+
+            if (destinationUrl.EndsWith("/"))
+            {
+                destinationUrl = destinationUrl.Substring(0, destinationUrl.Length - 1);
+            }
+            var destination = new Uri(destinationUrl);
+            if (!FileSystem.Options.TryGetRelativePath(Request, destination.ToString(), out var relativeDestinationPath))
+                return Unauthorized();
+
+            Log("RelativePath: " + relativePath);
+            if (!FileSystem.TryGetItem(relativePath, out var info))
+                return NotFound();
+
+            try
+            {
+                if (FileSystem.TryGetItem(relativeDestinationPath, out var destinationInfo))
+                {
+                    if (!overwrite)
+                        return StatusCode((int)HttpStatusCode.PreconditionFailed);
+
+                    destinationInfo.Delete();
+                }
+
+                info.CopyTo(relativeDestinationPath, overwrite);
+                return StatusCode((int)HttpStatusCode.Created);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
         }
 
         [HttpMkCol]
         [Route("{*url}")]
         public IActionResult MkCol(string url = null)
         {
+            Log("Url: " + url);
+            DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
@@ -133,7 +222,6 @@ namespace AmalgaDrive.DavServer.Controllers
                 return StatusCode((int)HttpStatusCode.MethodNotAllowed);
             }
 
-            Log("Url: " + url);
             if (string.IsNullOrWhiteSpace(url))
                 return BadRequest();
 
@@ -160,8 +248,15 @@ namespace AmalgaDrive.DavServer.Controllers
             if (!(dirInfo is IDirectoryInfo dir))
                 return NotFound();
 
-            dir.Create(name);
-            return StatusCode((int)HttpStatusCode.Created);
+            try
+            {
+                dir.Create(name);
+                return StatusCode((int)HttpStatusCode.Created);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
         }
 
         [HttpPut]
@@ -172,7 +267,28 @@ namespace AmalgaDrive.DavServer.Controllers
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
-            return Ok();
+            if (FileSystem.TryGetItem(relativePath, out var info))
+            {
+                if (info is IDirectoryInfo)
+                    return StatusCode((int)HttpStatusCode.MethodNotAllowed);
+            }
+
+            string path = Path.Combine(FileSystem.RootPath, relativePath);
+            try
+            {
+                using (var stream = System.IO.File.OpenWrite(path))
+                {
+                    using (var body = Request.Body)
+                    {
+                        body.CopyTo(stream);
+                    }
+                }
+                return Ok();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
         }
 
         [HttpMove]
@@ -180,6 +296,7 @@ namespace AmalgaDrive.DavServer.Controllers
         public IActionResult Move(string url = null)
         {
             Log("Url: " + url);
+            DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
@@ -200,16 +317,23 @@ namespace AmalgaDrive.DavServer.Controllers
             if (!FileSystem.TryGetItem(relativePath, out var info))
                 return NotFound();
 
-            if (FileSystem.TryGetItem(relativeDestinationPath, out var destinationInfo))
+            try
             {
-                if (!overwrite)
-                    return StatusCode((int)HttpStatusCode.PreconditionFailed);
+                if (FileSystem.TryGetItem(relativeDestinationPath, out var destinationInfo))
+                {
+                    if (!overwrite)
+                        return StatusCode((int)HttpStatusCode.PreconditionFailed);
 
-                destinationInfo.Delete();
+                    destinationInfo.Delete();
+                }
+
+                info.MoveTo(relativeDestinationPath);
+                return Ok();
             }
-
-            info.MoveTo(relativeDestinationPath);
-            return Ok();
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
         }
 
         [HttpLock]
@@ -217,10 +341,13 @@ namespace AmalgaDrive.DavServer.Controllers
         public IActionResult Lock(string url = null)
         {
             Log("Url: " + url);
+            DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
-            return Ok();
+            // this is fake of course, we don't really support locking
+            var token = Guid.NewGuid().ToString("N");
+            return new LockResult(token);
         }
 
         [HttpUnlock]
@@ -228,9 +355,11 @@ namespace AmalgaDrive.DavServer.Controllers
         public IActionResult Unlock(string url = null)
         {
             Log("Url: " + url);
+            DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
+            // that's ok, we don't really support locking
             return Ok();
         }
 
@@ -239,6 +368,11 @@ namespace AmalgaDrive.DavServer.Controllers
         public IActionResult PropFind(string url = null)
         {
             Log("Url: " + url);
+            var doc = GetRequestDocument();
+            var dr = new PropFindRequest(doc);
+            if (dr.AllProperties && dr.AllPropertiesNames)
+                return BadRequest();
+
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
@@ -246,29 +380,9 @@ namespace AmalgaDrive.DavServer.Controllers
             if (!FileSystem.TryGetItem(relativePath, out var info))
                 return NotFound();
 
-            string xml;
-            using (var stream = Request.Body)
-            {
-                using (var reader = new StreamReader(Request.Body))
-                {
-                    xml = reader.ReadToEnd();
-                    Log("Xml: " + xml);
-                }
-            }
-
-            var doc = new XmlDocument();
-            if (!string.IsNullOrWhiteSpace(xml))
-            {
-                doc.LoadXml(xml);
-            }
-
-            var dr = new DavRequest(doc);
-            if (dr.AllProperties && dr.AllPropertiesNames)
-                return BadRequest();
-
             var depth = Request.GetDepth();
             Log("Depth: " + depth);
-            return new MultiStatusResult(info.EnumerateFileSystemInfo(depth), Logger, dr);
+            return new PropFindResult(info.EnumerateFileSystemInfo(depth), Logger, dr);
         }
 
         [HttpPropPatch]
@@ -276,10 +390,18 @@ namespace AmalgaDrive.DavServer.Controllers
         public IActionResult PropPatch(string url = null)
         {
             Log("Url: " + url);
+            var doc = GetRequestDocument();
+            var dr = new PropPatchRequest(doc);
+
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
-            return Ok();
+            Log("RelativePath: " + relativePath);
+            if (!FileSystem.TryGetItem(relativePath, out var info))
+                return NotFound();
+
+            dr.Update(info);
+            return new PropPatchResult(info, Logger, dr);
         }
     }
 }

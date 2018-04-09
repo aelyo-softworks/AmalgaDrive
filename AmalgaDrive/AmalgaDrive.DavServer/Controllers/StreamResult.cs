@@ -11,8 +11,7 @@ namespace AmalgaDrive.DavServer.Controllers
     {
         public StreamResult(Stream stream, string fileName, string contentType)
         {
-            if (stream == null)
-                throw new ArgumentNullException(nameof(stream));
+            // stream null means it's for a HEAD request (like GET, but w/o body)
 
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName));
@@ -35,9 +34,16 @@ namespace AmalgaDrive.DavServer.Controllers
             context.HttpContext.Response.ContentType = ContentType;
             context.HttpContext.Response.Headers["Content-Disposition"] = new ContentDispositionHeaderValue("attachment") { Name = FileName }.ToString();
 
-            using (var stream = context.HttpContext.Response.Body)
+            var input = Stream;
+            if (input != null)
             {
-                await Stream.CopyToAsync(stream);
+                using (input)
+                {
+                    using (var stream = context.HttpContext.Response.Body)
+                    {
+                        await Stream.CopyToAsync(stream);
+                    }
+                }
             }
         }
     }

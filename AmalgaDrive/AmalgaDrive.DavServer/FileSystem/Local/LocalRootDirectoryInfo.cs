@@ -15,6 +15,7 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
 
         public override void Delete() { }
         public override void Delete(bool recursive) { }
-        public override void MoveTo(string path) { }
+        public override void MoveTo(string rootRelativePath) { }
+        public override void CopyTo(string rootRelativePath, bool overwrite) { }
     }
 }
