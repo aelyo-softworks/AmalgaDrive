@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace AmalgaDrive.DavServer.FileSystem
 {
     public interface IFileSystem
     {
         string RootPath { get; }
+        DavServerOptions Options { get; }
 
-        void Initialize(IDictionary<string, string> properties);
+        void Initialize(Action<DavServerOptions> setupAction, IDictionary<string, string> properties);
         bool TryGetItem(string fullPath, out IFileSystemInfo info);
+        string GetRelativePath(IFileSystemInfo info);
     }
 }

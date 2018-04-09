@@ -59,11 +59,12 @@ namespace AmalgaDrive.DavServer.Controllers
 
             using (var writer = XmlWriter.Create(stream, settings))
             {
-                await writer.WriteStartElementAsync(null, "multistatus", DavServerExtensions.DavNamespaceUri);
+                await writer.WriteStartElementAsync(DavServerExtensions.DavNamespacePrefix, "multistatus", DavServerExtensions.DavNamespaceUri);
                 foreach (var info in Infos)
                 {
-                    await writer.WriteStartElementAsync(null, "response", DavServerExtensions.DavNamespaceUri);
-                    await writer.WriteElementStringAsync(null, "href", DavServerExtensions.DavNamespaceUri, info.GetHRef().ToString());
+                    await writer.WriteStartElementAsync(DavServerExtensions.DavNamespacePrefix, "response", DavServerExtensions.DavNamespaceUri);
+                    var href = info.System.Options.GetPublicUri(context.HttpContext.Request, info);
+                    await writer.WriteElementStringAsync(DavServerExtensions.DavNamespacePrefix, "href", DavServerExtensions.DavNamespaceUri, href.ToString());
                     await Request.WriteProperties(writer, info);
                     await writer.WriteEndElementAsync();
                 }

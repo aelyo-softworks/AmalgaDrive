@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmalgaDrive.DavServer.Controllers;
 using AmalgaDrive.DavServer.FileSystem;
 using AmalgaDrive.DavServer.FileSystem.Local;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +19,7 @@ namespace AmalgaDrive.DavServer
         public const int MultiStatusCode = 207;
         public const string DesktopIni = "desktop.ini";
 
-        public static void AddDavServer(this IServiceCollection services, IConfiguration configuration)
+        public static void AddDavServer(this IServiceCollection services, IConfiguration configuration, Action<DavServerOptions> setupAction = null)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
@@ -41,7 +40,7 @@ namespace AmalgaDrive.DavServer
                     throw new DavServerException("0003: Type '" + typeName + "' is not an " + nameof(IFileSystem) + ".");
 
                 var dic = configuration.GetSection(DavServerConfigPath + "Properties").GetChildren().ToDictionary(c1 => c1.Key, c2 => c2.Value);
-                fs.Initialize(dic);
+                fs.Initialize(setupAction, dic);
                 return fs;
             });
         }
@@ -52,31 +51,23 @@ namespace AmalgaDrive.DavServer
                 throw new ArgumentNullException(nameof(info));
 
             if (info is IFileInfo fi)
-                return fi.ContentType;
+                return fi.System.Options.GetContentType(fi);
 
-            return null;
+            return string.Empty;
         }
 
-        public static long GetContentLength(this IFileSystemInfo info)
+        public static string GetContentLength(this IFileSystemInfo info)
         {
             if (info == null)
                 throw new ArgumentNullException(nameof(info));
 
             if (info is IFileInfo fi)
-                return fi.Length;
+                return fi.Length.ToString();
 
-            return 0;
+            return string.Empty;
         }
 
-        public static Uri GetHRef(this IFileSystemInfo info)
-        {
-            if (info == null)
-                throw new ArgumentNullException(nameof(info));
-
-            return new Uri("http://localhost:61786/dav/" + info.Name);
-        }
-
-        public static IEnumerable<IFileSystemInfo> EnumerateFileSysteminfo(this IFileSystem fileSystem, int depth)
+        public static IEnumerable<IFileSystemInfo> EnumerateFileSystemInfo(this IFileSystem fileSystem, int depth)
         {
             if (fileSystem == null)
                 throw new ArgumentNullException(nameof(fileSystem));
@@ -84,13 +75,13 @@ namespace AmalgaDrive.DavServer
             if (!fileSystem.TryGetItem(null, out IFileSystemInfo info))
                 yield break;
 
-            foreach (var child in EnumerateFileSysteminfo(info, depth))
+            foreach (var child in EnumerateFileSystemInfo(info, depth))
             {
                 yield return child;
             }
         }
 
-        public static IEnumerable<IFileSystemInfo> EnumerateFileSysteminfo(this IFileSystemInfo info, int depth)
+        public static IEnumerable<IFileSystemInfo> EnumerateFileSystemInfo(this IFileSystemInfo info, int depth)
         {
             if (info == null)
                 throw new ArgumentNullException(nameof(info));

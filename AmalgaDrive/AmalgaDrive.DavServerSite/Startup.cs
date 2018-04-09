@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -28,7 +29,12 @@ namespace AmalgaDrive.DavServerSite
                 options.OutputFormatters.RemoveType<JsonOutputFormatter>();
                 options.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
             });
-            services.AddDavServer(Configuration);
+
+            services.AddDavServer(Configuration, options =>
+            {
+                // options.ServeHidden = true;
+            });
+
             services.Configure<KestrelServerOptions>(o =>
             {
                 o.AddServerHeader = false;
@@ -37,8 +43,9 @@ namespace AmalgaDrive.DavServerSite
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            // This will only works on Windows, but will fail gracefully on other OSes
-            // The guid is an arbitrary value that you can define in TraceSpy's ETW providers: https://github.com/smourier/TraceSpy
+            // To see these ETW traces, use for example https://github.com/smourier/TraceSpy
+            // The guid is an arbitrary value that you'll have to add to TraceSpy's ETW providers.
+            // note: this will only works on Windows, but will fail gracefully on other OSes
             loggerFactory.AddEventProvider(new Guid("a3f87db5-0cba-4e4e-b712-439980e59870"));
 
             if (env.IsDevelopment())

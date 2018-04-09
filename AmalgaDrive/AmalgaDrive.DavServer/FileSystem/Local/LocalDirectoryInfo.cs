@@ -6,38 +6,77 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
 {
     public class LocalDirectoryInfo : IDirectoryInfo
     {
-        public LocalDirectoryInfo(DirectoryInfo info)
+        private Lazy<LocalDirectoryInfo> _parent;
+
+        public LocalDirectoryInfo(LocalFileSystem system, DirectoryInfo info)
         {
+            if (system == null)
+                throw new ArgumentNullException(nameof(system));
+
             if (info == null)
                 throw new ArgumentNullException(nameof(info));
 
+            System = system;
             Info = info;
+            _parent = new Lazy<LocalDirectoryInfo>(() => System.CreateDirectoryInfo(Info.Parent));
         }
 
+        public LocalFileSystem System { get; }
         public DirectoryInfo Info { get; }
-        public string Name => Info.Name;
+        public virtual IDirectoryInfo Parent { get; }
+        public virtual string Name => Info.Name;
+        public virtual bool IsRoot => false;
 
-        public DateTime LastAccessTimeUtc { get => Info.LastAccessTimeUtc; set => Info.LastAccessTimeUtc = value; }
-        public DateTime CreationTimeUtc { get => Info.CreationTimeUtc; set => Info.CreationTimeUtc = value; }
-        public DateTime LastWriteTimeUtc { get => Info.LastWriteTimeUtc; set => Info.LastWriteTimeUtc = value; }
-        public FileAttributes Attributes { get => Info.Attributes; set => Info.Attributes = value; }
+        public virtual DateTime LastAccessTimeUtc { get => Info.LastAccessTimeUtc; set => Info.LastAccessTimeUtc = value; }
+        public virtual DateTime CreationTimeUtc { get => Info.CreationTimeUtc; set => Info.CreationTimeUtc = value; }
+        public virtual DateTime LastWriteTimeUtc { get => Info.LastWriteTimeUtc; set => Info.LastWriteTimeUtc = value; }
+        public virtual FileAttributes Attributes { get => Info.Attributes; set => Info.Attributes = value; }
+        IFileSystem IFileSystemInfo.System => System;
 
-        public void Delete(bool recursive) => Info.Delete(recursive);
-        public void Delete() => Info.Delete();
+        public virtual void Delete(bool recursive) => Info.Delete(recursive);
+        public virtual void Delete() => Info.Delete(true);
+        public override string ToString() => Name;
 
-        public IEnumerable<IDirectoryInfo> EnumerateDirectories()
+        public virtual void MoveTo(string rootRelativePath)
+        {
+            if (rootRelativePath == null)
+                throw new ArgumentNullException(nameof(rootRelativePath));
+
+            var target = Path.Combine(System.RootPath, rootRelativePath);
+            if (!System.IsChildPath(target))
+                throw new ArgumentException(null, nameof(rootRelativePath));
+
+            Info.MoveTo(target);
+        }
+
+        public virtual IDirectoryInfo Create(string name)
+        {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
+            var di = Info.CreateSubdirectory(name);
+            return System.CreateDirectoryInfo(di);
+        }
+
+        public virtual IEnumerable<IDirectoryInfo> EnumerateDirectories()
         {
             foreach (var dir in Info.EnumerateDirectories())
             {
-                yield return new LocalDirectoryInfo(dir);
+                if (dir.Attributes.HasFlag(FileAttributes.Hidden) && !System.Options.ServeHidden)
+                    continue;
+
+                yield return System.CreateDirectoryInfo(dir);
             }
         }
 
-        public IEnumerable<IFileInfo> EnumerateFiles()
+        public virtual IEnumerable<IFileInfo> EnumerateFiles()
         {
             foreach (var file in Info.EnumerateFiles())
             {
-                yield return new LocalFileInfo(file);
+                if (file.Attributes.HasFlag(FileAttributes.Hidden) && !System.Options.ServeHidden)
+                    continue;
+
+                yield return System.CreateFileInfo(file);
             }
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using AmalgaDrive.DavServer.FileSystem.Local;
 
 namespace AmalgaDrive.DavServer
 {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using AmalgaDrive.DavServer.FileSystem;
 
-namespace AmalgaDrive.DavServer.Controllers
+namespace AmalgaDrive.DavServer
 {
     public class DavRequest
     {
@@ -98,7 +98,11 @@ namespace AmalgaDrive.DavServer.Controllers
                                 {
                                     if (value is DateTime dt)
                                     {
-                                        svalue = XmlConvert.ToString(dt, XmlDateTimeSerializationMode.Local);
+                                        svalue = dt.ToString("R");
+                                    }
+                                    else if (value is bool b)
+                                    {
+                                        svalue = b ? "1" : "0";
                                     }
                                     else
                                     {

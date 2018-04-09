@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
 using AmalgaDrive.DavServer.FileSystem;
 
-namespace AmalgaDrive.DavServer.Controllers
+namespace AmalgaDrive.DavServer
 {
     public class DavProperty
     {
@@ -18,6 +19,7 @@ namespace AmalgaDrive.DavServer.Controllers
             list.Add(new DavProperty("getcontentlength", i => i.GetContentLength()));
             list.Add(new DavProperty("creationdate", i => i.CreationTimeUtc));
             list.Add(new DavProperty("getlastmodified", i => i.LastWriteTimeUtc));
+            list.Add(new DavProperty("ishidden", i => i.Attributes.HasFlag(FileAttributes.Hidden)));
             list.Add(new DavProperty("Win32FileAttributes", DavServerExtensions.MsNamespaceUri, i => ((int)i.Attributes).ToString("X8")));
             list.Add(new DavProperty("resourcetype", i => i) { WriteValueFunc = async (i, w) =>
                          {
