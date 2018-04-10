@@ -58,6 +58,10 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\DriveServiceSettings.cs" />
+    <Compile Include="Configuration\Settings.cs" />
+    <Compile Include="Drive\IDriveService.cs" />
+    <Compile Include="Drive\WebDav\WebDavDriveService.cs" />
     <Compile Include="Resources\MaterialDesignIcons.cs" />
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>

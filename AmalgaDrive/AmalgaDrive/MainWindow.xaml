@@ -80,7 +80,7 @@
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <DockPanel Background="#305070">
+        <DockPanel Background="#305070" Name="CaptionBar" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown">
             <Menu IsMainMenu="True">
                 <MenuItem Header="_File" Template="{StaticResource VsMenuTop}" >
                     <MenuItem Header="_Configure" Template="{StaticResource VsMenuSub}" Name="Configurate" />

@@ -134,5 +134,10 @@ namespace AmalgaDrive
         {
 
         }
+
+        private void DockPanel_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            DragMove();
+        }
     }
 }
