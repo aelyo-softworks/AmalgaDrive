@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:AmalgaDrive"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <FontFamily x:Key="MaterialDesign">resources/#material design icons</FontFamily>
     </Application.Resources>
 </Application>
