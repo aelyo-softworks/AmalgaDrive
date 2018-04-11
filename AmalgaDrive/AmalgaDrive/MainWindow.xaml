@@ -6,94 +6,26 @@
         xmlns:md="clr-namespace:MaterialDesignIcons"
         xmlns:local="clr-namespace:AmalgaDrive"
         mc:Ignorable="d"
-        Title="Amalga Drive" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize">
-    <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="btv" />
-        <Style x:Key="BoxButton" TargetType="Button">
-            <Setter Property="Background" Value="#305070" />
-            <Setter Property="Foreground" Value="Orange" />
-            <Setter Property="Width" Value="20" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="FontFamily" Value="{StaticResource MaterialDesign}" />
-            <Setter Property="FontSize" Value="20" />
-            <Setter Property="Margin" Value="0,0,10,0" />
-        </Style>
-
-        <!-- style a top level menu item -->
-        <ControlTemplate x:Key="VsMenuTop" TargetType="MenuItem">
-            <StackPanel TextBlock.FontSize="15px" Height="35">
-                <!-- label, icons, etc. -->
-                <Label Content="{TemplateBinding Header}" Margin="5" Foreground="White" />
-
-                <!-- sub items -->
-                <Popup IsOpen="{TemplateBinding IsSubmenuOpen}" Placement="RelativePoint" PlacementRectangle="0,35,0,0"  AllowsTransparency="True" Focusable="False">
-                    <Border BorderThickness="1" Background="White" BorderBrush="#E0E0E0">
-                        <StackPanel IsItemsHost="True" />
-                    </Border>
-                </Popup>
-                <StackPanel.Style>
-                    <Style TargetType="StackPanel">
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver"  Value="True">
-                                <Setter Property="Background" Value="#106EBE" />
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </StackPanel.Style>
-            </StackPanel>
-        </ControlTemplate>
-
-        <!-- style a non-top level menu item -->
-        <ControlTemplate x:Key="VsMenuSub" TargetType="MenuItem">
-            <DockPanel TextBlock.FontSize="15px" x:Name="panel">
-                <!-- label, icons, etc. -->
-                <Label Content="{TemplateBinding Header}" Foreground="Black" Margin="5,0,5,0" />
-
-                <!-- sub items -->
-                <Popup IsOpen="{TemplateBinding IsSubmenuOpen}" AllowsTransparency="True" Focusable="False" Placement="Right" >
-                    <Border BorderThickness="1" Background="White" BorderBrush="#E0E0E0">
-                        <StackPanel IsItemsHost="True" />
-                    </Border>
-                </Popup>
-            </DockPanel>
-            <ControlTemplate.Triggers>
-                <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" TargetName="panel" Value="#EFF6FC" />
-                </Trigger>
-            </ControlTemplate.Triggers>
-        </ControlTemplate>
-
-        <!-- style the separator -->
-        <ControlTemplate x:Key="VsMenuSep" TargetType="Separator">
-            <Border Height="1" Background="#E0E0E0" />
-        </ControlTemplate>
-
-        <!-- some base stuff -->
-        <Style TargetType="Menu">
-            <Setter Property="Background" Value="#305070" />
-            <Setter Property="Height" Value="40px" />
-        </Style>
-
-    </Window.Resources>
-    <Grid Margin="5,0,5,0">
+        Title="Amalga Drive" Height="450" Width="800" MinWidth="300" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize">
+    <Grid Margin="5,0,5,5">
         <Grid.RowDefinitions>
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <DockPanel Background="#305070" Name="CaptionBar" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown">
-            <Menu IsMainMenu="True">
+            <Menu IsMainMenu="True" FontFamily="{StaticResource MainFont}">
                 <MenuItem Header="_File" Template="{StaticResource VsMenuTop}" >
-                    <MenuItem Header="_Configure" Template="{StaticResource VsMenuSub}" Name="Configurate" />
+                    <MenuItem Header="_Add a Cloud Drive..." Template="{StaticResource VsMenuSub}" Name="AddDrive" Click="AddDrive_Click" />
                     <Separator Template="{StaticResource VsMenuSep}" />
-                    <MenuItem Header="_Exit" Template="{StaticResource VsMenuSub}" Name="FileExit" Click="FileExit_Click" />
-                </MenuItem>
-                <MenuItem Header="_Drives" Template="{StaticResource VsMenuTop}">
-                    <MenuItem Header="_Overview" Template="{StaticResource VsMenuSub}" />
+                    <MenuItem Header="_Close" Template="{StaticResource VsMenuSub}" Name="FileMinimize" Click="Minimize_Click" />
+                    <Separator Template="{StaticResource VsMenuSep}" />
+                    <MenuItem Header="_Stop Synchronization and Quit" Template="{StaticResource VsMenuSub}" Name="FileExit" Click="FileExit_Click" />
                 </MenuItem>
                 <MenuItem Header="_Tools" Template="{StaticResource VsMenuTop}">
+                    <MenuItem Header="_Settings" Template="{StaticResource VsMenuSub}" Name="Options" />
                     <MenuItem Header="_Logs" Template="{StaticResource VsMenuSub}" />
                 </MenuItem>
-                <MenuItem Header="_Help" Template="{StaticResource VsMenuTop}">
+                <MenuItem Header="_Help" Template="{StaticResource VsMenuTop}" Name="HelpAbout" Click="HelpAbout_Click">
                     <MenuItem Header="_About..." Template="{StaticResource VsMenuSub}" />
                 </MenuItem>
             </Menu>
@@ -102,7 +34,7 @@
                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Settings}" />
                 </Button>
                 <Border Background="White" Width="1" />
-                <Button Style="{StaticResource BoxButton}" ToolTip="Hide" Name="Minimize" Margin="5,0,5,0" Click="Minimize_Click">
+                <Button Style="{StaticResource BoxButton}" ToolTip="Close" Name="Minimize" Margin="5,0,5,0" Click="Minimize_Click">
                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.WindowMinimize}" />
                 </Button>
                 <Button Visibility="{Binding MaximizeVisibility}" Style="{StaticResource BoxButton}" ToolTip="Maximize" Name="Maximize" Click="Maximize_Click">
@@ -111,7 +43,7 @@
                 <Button Visibility="{Binding RestoreVisibility}" Style="{StaticResource BoxButton}" ToolTip="Restore" Name="Restore" Click="Restore_Click">
                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.WindowRestore}" />
                 </Button>
-                <Button Style="{StaticResource BoxButton}" ToolTip="Quit" Name="Quit" Click="FileExit_Click">
+                <Button Style="{StaticResource BoxButton}" ToolTip="Stop Synchronization and Quit" Name="Quit" Click="FileExit_Click">
                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Power}" />
                 </Button>
             </DockPanel>

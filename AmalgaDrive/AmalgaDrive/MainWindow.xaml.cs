@@ -139,5 +139,19 @@ namespace AmalgaDrive
         {
             DragMove();
         }
+
+        private void HelpAbout_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new AboutWindow();
+            dlg.Owner = this;
+            dlg.ShowDialog();
+        }
+
+        private void AddDrive_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new EditDriveServiceWindow();
+            dlg.Owner = this;
+            dlg.ShowDialog();
+        }
     }
 }

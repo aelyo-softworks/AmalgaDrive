@@ -44,6 +44,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Presentation" />
     <Reference Include="System.Xml" />
@@ -58,14 +59,30 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AboutWindow.xaml.cs">
+      <DependentUpon>AboutWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Configuration\DriveServiceSettings.cs" />
     <Compile Include="Configuration\Settings.cs" />
     <Compile Include="Drive\IDriveService.cs" />
     <Compile Include="Drive\WebDav\WebDavDriveService.cs" />
+    <Compile Include="EditDriveServiceWindow.xaml.cs">
+      <DependentUpon>EditDriveServiceWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Resources\MaterialDesignIcons.cs" />
+    <Compile Include="Utilities\SecurityUtilities.cs" />
+    <Compile Include="Utilities\Serializable.cs" />
+    <Page Include="AboutWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="EditDriveServiceWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ErrorBox.xaml">
       <Generator>MSBuild:Compile</Generator>
