@@ -13,7 +13,7 @@ namespace MaterialDesignIcons
     /// <summary>
     /// Material Design Icons Strings.
     /// </summary>
-    public static partial class MaterialDesignStringIcons
+    internal static partial class MaterialDesignStringIcons
     {
         /// <summary>
         /// access-point glyph (F002).

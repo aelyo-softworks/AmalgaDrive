@@ -13,7 +13,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="30" />
         </Grid.RowDefinitions>
-        <DockPanel Background="#305070" Name="CaptionBar" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown">
+        <DockPanel Background="{StaticResource BackColor}" Name="CaptionBar" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown">
             <TextBlock Style="{StaticResource MenuTitle}" VerticalAlignment="Center" Margin="5,0,0,0" Name="ThisTitle">Add a Cloud Service</TextBlock>
             <DockPanel HorizontalAlignment="Right">
                 <Button Style="{StaticResource BoxButton}" ToolTip="Close" Name="Quit" Click="Close_Click">
@@ -27,13 +27,13 @@
                     <Setter Property="Margin" Value="0,0,10,0" />
                     <Setter Property="FontFamily" Value="{StaticResource MainFont}" />
                     <Setter Property="VerticalAlignment" Value="Center" />
-                    <Setter Property="HorizontalAlignment" Value="Center" />
+                    <Setter Property="HorizontalAlignment" Value="Left" />
                 </Style>
-                <Style TargetType="ComboBox">
+                <Style TargetType="ComboBox" BasedOn="{StaticResource FormComboBox}">
                     <Setter Property="Margin" Value="5" />
                     <Setter Property="Height" Value="25" />
                 </Style>
-                <Style TargetType="TextBox">
+                <Style TargetType="TextBox" BasedOn="{StaticResource FormTextBox}">
                     <Setter Property="Margin" Value="5" />
                     <Setter Property="Height" Value="25" />
                 </Style>
@@ -47,20 +47,27 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Grid.Row="0">Type :</TextBlock>
-            <ComboBox Grid.Column="1" Grid.Row="0"></ComboBox>
+            <ComboBox Grid.Column="1" Grid.Row="0" Name="ServiceType" DisplayMemberPath="DisplayName" SelectedValuePath="AssemblyQualifiedName" SelectedValue="{Binding TypeName, UpdateSourceTrigger=PropertyChanged}" />
             <TextBlock Grid.Column="0" Grid.Row="1">Name :</TextBlock>
-            <TextBox Grid.Column="1" Grid.Row="1"></TextBox>
+            <TextBox Grid.Column="1" Grid.Row="1" Name="ServiceName" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
             <TextBlock Grid.Column="0" Grid.Row="2">Login :</TextBlock>
-            <TextBox Grid.Column="1" Grid.Row="2"></TextBox>
+            <TextBox Grid.Column="1" Grid.Row="2" Name="ServiceLogin" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" />
             <TextBlock Grid.Column="0" Grid.Row="3">Password :</TextBlock>
-            <PasswordBox Grid.Column="1" Grid.Row="3"></PasswordBox>
+            <PasswordBox Grid.Column="1" Grid.Row="3" Name="ServicePassword" PasswordChanged="ServicePassword_PasswordChanged"/>
+            <TextBox Grid.Column="1" Grid.Row="4" Name="BaseUrl" Text="{Binding BaseUrl, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Grid.Column="0" Grid.Row="5">Url :</TextBlock>
         </Grid>
-        <Button Grid.Row="2" Click="Button_Click" Style="{StaticResource ActionButton}" Width="75">OK</Button>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Name="OkButton" Click="OkButton_Click" Style="{StaticResource ActionButton}" Width="75" IsEnabled="{Binding IsValid}">OK</Button>
+            <Border Width="10" />
+            <Button Name="CancelButton" Click="Close_Click" Style="{StaticResource ActionButton}" Width="75">Cancel</Button>
+        </StackPanel>
     </Grid>
 </Window>

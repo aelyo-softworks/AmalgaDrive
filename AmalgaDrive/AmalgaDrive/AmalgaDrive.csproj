@@ -59,23 +59,32 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AboutWindow.xaml.cs">
-      <DependentUpon>AboutWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Configuration\DriveServiceSettings.cs" />
     <Compile Include="Configuration\Settings.cs" />
+    <Compile Include="Drive\DriveServiceDescriptor.cs" />
     <Compile Include="Drive\IDriveService.cs" />
     <Compile Include="Drive\WebDav\WebDavDriveService.cs" />
     <Compile Include="EditDriveServiceWindow.xaml.cs">
       <DependentUpon>EditDriveServiceWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MessageBoxWindow.xaml.cs">
+      <DependentUpon>MessageBoxWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Model\DriveObject.cs" />
+    <Compile Include="Model\DriveService.cs" />
     <Compile Include="Resources\MaterialDesignIcons.cs" />
+    <Compile Include="Utilities\ChangeTrackingDictionaryObject.cs" />
+    <Compile Include="Utilities\DictionaryObject.cs" />
+    <Compile Include="Utilities\DictionaryObjectProperty.cs" />
+    <Compile Include="Utilities\DictionaryObjectPropertyChangedEventArgs.cs" />
+    <Compile Include="Utilities\DictionaryObjectPropertyChangingEventArgs.cs" />
+    <Compile Include="Utilities\DictionaryObjectPropertyRollbackEventArgs.cs" />
+    <Compile Include="Utilities\DictionaryObjectPropertySetOptions.cs" />
+    <Compile Include="Utilities\IChangeEvents.cs" />
+    <Compile Include="Utilities\IChangeTrackingDictionaryObject.cs" />
+    <Compile Include="Utilities\IDictionaryObject.cs" />
     <Compile Include="Utilities\SecurityUtilities.cs" />
     <Compile Include="Utilities\Serializable.cs" />
-    <Page Include="AboutWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -96,7 +105,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AppParameters.cs" />
+    <Compile Include="Utilities\UIUtilities.cs" />
     <Compile Include="ErrorBox.xaml.cs">
       <DependentUpon>ErrorBox.xaml</DependentUpon>
     </Compile>
@@ -104,6 +113,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="MessageBoxWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

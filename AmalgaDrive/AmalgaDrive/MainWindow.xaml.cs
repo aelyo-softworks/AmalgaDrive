@@ -1,8 +1,14 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
+using AmalgaDrive.Configuration;
+using AmalgaDrive.Model;
+using AmalgaDrive.Utilities;
 using ShellBoost.Core.Utilities;
 
 namespace AmalgaDrive
@@ -18,8 +24,8 @@ namespace AmalgaDrive
             InitializeComponent();
 
             // NOTE: icon resource must be named same as namespace + icon
-            Icon = AppParameters.IconSource;
-            _notifyIcon.Icon = AppParameters.Icon;
+            Icon = UIUtilities.IconSource;
+            _notifyIcon.Icon = UIUtilities.Icon;
             _notifyIcon.Text = Assembly.GetEntryAssembly().GetTitle();
             _notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu();
             _notifyIcon.ContextMenu.MenuItems.Add("Show", Show);
@@ -30,6 +36,7 @@ namespace AmalgaDrive
 
             _state = new State(this);
             DataContext = _state;
+            ReloadItems();
         }
 
         private class State : INotifyPropertyChanged
@@ -51,6 +58,11 @@ namespace AmalgaDrive
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MaximizeVisibility)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RestoreVisibility)));
             }
+        }
+
+        private void ReloadItems()
+        {
+            Drives.ItemsSource = Settings.Current.DriveServices.Select(s => new DriveService(s));
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -130,28 +142,62 @@ namespace AmalgaDrive
         private void Minimize_Click(object sender, RoutedEventArgs e) => Close(null, null);
         private void Restore_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Normal;
 
-        private void Settings_Click(object sender, RoutedEventArgs e)
+        private void Options_Click(object sender, RoutedEventArgs e)
         {
 
         }
 
-        private void DockPanel_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            DragMove();
-        }
+        private void DockPanel_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e) => DragMove();
 
-        private void HelpAbout_Click(object sender, RoutedEventArgs e)
-        {
-            var dlg = new AboutWindow();
-            dlg.Owner = this;
-            dlg.ShowDialog();
-        }
+        private void HelpAbout_Click(object sender, RoutedEventArgs e) => this.ShowMessage("Copyright (C) 2017-" + DateTime.Now.Year + " Aelyo Softworks" + Environment.NewLine + "All rights reserved.", UIUtilities.IconSource);
 
         private void AddDrive_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new EditDriveServiceWindow();
+            var service = new DriveService();
+            var dlg = new EditDriveServiceWindow(service);
             dlg.Owner = this;
-            dlg.ShowDialog();
+            if (dlg.ShowDialog().GetValueOrDefault())
+            {
+                ReloadItems();
+            }
         }
+
+        private void OpenConfig_Click(object sender, RoutedEventArgs e)
+        {
+            if (File.Exists(Settings.DefaultConfigurationFilePath))
+            {
+                UIUtilities.OpenExplorer(Path.GetDirectoryName(Settings.DefaultConfigurationFilePath));
+            }
+            else
+            {
+                this.ShowMessage("Nothing is configured yet.", MessageBoxImage.Information);
+            }
+        }
+
+        private void DeleteService_Click(object sender, RoutedEventArgs e)
+        {
+            var service = UIUtilities.GetDataContext<DriveService>(sender);
+            if (this.ShowConfirm("Are you sure you want to remove the '" + service.Name + "' service?") != MessageBoxResult.Yes)
+                return;
+
+            Settings.Current.RemoveDriveService(service.Name);
+            ReloadItems();
+        }
+
+        private void EditService(DriveService service)
+        {
+            if (service == null)
+                return;
+
+            var dlg = new EditDriveServiceWindow(service);
+            dlg.Owner = this;
+            if (dlg.ShowDialog().GetValueOrDefault())
+            {
+                ReloadItems();
+            }
+        }
+
+        private void Edit_Click(object sender, RoutedEventArgs e) => EditService(UIUtilities.GetDataContext<DriveService>(sender));
+        private void Drives_MouseDoubleClick(object sender, MouseButtonEventArgs e) => EditService(UIUtilities.GetDataContext<DriveService>(e.OriginalSource));
     }
 }

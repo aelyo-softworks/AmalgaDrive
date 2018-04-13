@@ -6,18 +6,40 @@
     <Application.Resources>
         <FontFamily x:Key="MaterialDesign">resources/#material design icons</FontFamily>
         <FontFamily x:Key="MainFont">Segoe UI Bold</FontFamily>
+        <FontFamily x:Key="TextBoxFont">Segoe UI Bold</FontFamily>
+        <SolidColorBrush x:Key="BackColor">#305070</SolidColorBrush>
+        <SolidColorBrush x:Key="BackColorOpacity30">#30305070</SolidColorBrush>
+        <SolidColorBrush x:Key="BackColorOpacity60">#60305070</SolidColorBrush>
+        <SolidColorBrush x:Key="AccentColor">Orange</SolidColorBrush>
+
         <BooleanToVisibilityConverter x:Key="btv" />
 
         <Style x:Key="MenuTitle" TargetType="TextBlock">
-            <Setter Property="Background" Value="#305070" />
+            <Setter Property="Background" Value="{StaticResource BackColor}" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="FontFamily" Value="{StaticResource MainFont}" />
             <Setter Property="FontSize" Value="15" />
         </Style>
 
+        <Style x:Key="FormTextBox" TargetType="TextBox">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="FormComboBox" TargetType="ComboBox">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="ActionButton" TargetType="Button">
-            <Setter Property="Background" Value="#305070" />
-            <Setter Property="Foreground" Value="Orange" />
+            <Setter Property="Background" Value="{StaticResource BackColor}" />
+            <Setter Property="Foreground" Value="{StaticResource AccentColor}" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Height" Value="25" />
@@ -26,23 +48,33 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
-                        <Border Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border x:Name="OuterBorder" Background="{StaticResource AccentColor}">
+                            <Border x:Name="InnerBorder" Background="{TemplateBinding Background}" Margin="0">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefault" Value="True">
+                                <Setter Property="BorderThickness" Value="2" TargetName="InnerBorder"  />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="Orange" />
-                    <Setter Property="Foreground" Value="#305070" />
+                    <Setter Property="Background" Value="{StaticResource AccentColor}" />
+                    <Setter Property="Foreground" Value="{StaticResource BackColor}" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.4" />
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="BoxButton" TargetType="Button">
-            <Setter Property="Background" Value="#305070" />
-            <Setter Property="Foreground" Value="Orange" />
+            <Setter Property="Background" Value="{StaticResource BackColor}" />
+            <Setter Property="Foreground" Value="{StaticResource AccentColor}" />
             <Setter Property="Width" Value="20" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="FontFamily" Value="{StaticResource MaterialDesign}" />
@@ -59,8 +91,8 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="Orange" />
-                    <Setter Property="Foreground" Value="#305070" />
+                    <Setter Property="Background" Value="{StaticResource AccentColor}" />
+                    <Setter Property="Foreground" Value="{StaticResource BackColor}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -116,7 +148,7 @@
 
         <!-- some base stuff -->
         <Style TargetType="Menu">
-            <Setter Property="Background" Value="#305070" />
+            <Setter Property="Background" Value="{StaticResource BackColor}" />
             <Setter Property="Height" Value="40px" />
         </Style>
 

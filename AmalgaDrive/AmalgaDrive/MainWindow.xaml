@@ -12,7 +12,7 @@
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <DockPanel Background="#305070" Name="CaptionBar" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown">
+        <DockPanel Background="{StaticResource BackColor}" Name="CaptionBar" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown">
             <Menu IsMainMenu="True" FontFamily="{StaticResource MainFont}">
                 <MenuItem Header="_File" Template="{StaticResource VsMenuTop}" >
                     <MenuItem Header="_Add a Cloud Drive..." Template="{StaticResource VsMenuSub}" Name="AddDrive" Click="AddDrive_Click" />
@@ -22,15 +22,17 @@
                     <MenuItem Header="_Stop Synchronization and Quit" Template="{StaticResource VsMenuSub}" Name="FileExit" Click="FileExit_Click" />
                 </MenuItem>
                 <MenuItem Header="_Tools" Template="{StaticResource VsMenuTop}">
-                    <MenuItem Header="_Settings" Template="{StaticResource VsMenuSub}" Name="Options" />
+                    <MenuItem Header="_Settings" Template="{StaticResource VsMenuSub}" Name="ToolsOptions" Click="Options_Click" />
                     <MenuItem Header="_Logs" Template="{StaticResource VsMenuSub}" />
+                    <Separator Template="{StaticResource VsMenuSep}" />
+                    <MenuItem Header="_Open Configuration Path" Template="{StaticResource VsMenuSub}" Name="OpenConfig" Click="OpenConfig_Click" />
                 </MenuItem>
                 <MenuItem Header="_Help" Template="{StaticResource VsMenuTop}" Name="HelpAbout" Click="HelpAbout_Click">
                     <MenuItem Header="_About..." Template="{StaticResource VsMenuSub}" />
                 </MenuItem>
             </Menu>
             <DockPanel HorizontalAlignment="Right">
-                <Button Style="{StaticResource BoxButton}" ToolTip="Settings" Name="Settings" Margin="5,0,5,0" Click="Settings_Click">
+                <Button Style="{StaticResource BoxButton}" ToolTip="Settings" Name="Options" Margin="5,0,5,0" Click="Options_Click">
                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Settings}" />
                 </Button>
                 <Border Background="White" Width="1" />
@@ -48,5 +50,59 @@
                 </Button>
             </DockPanel>
         </DockPanel>
+        <ListView Grid.Row="1" Name="Drives" MouseDoubleClick="Drives_MouseDoubleClick">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{StaticResource BackColorOpacity30}" />
+                            <Setter Property="BorderBrush" Value="Transparent" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{StaticResource BackColorOpacity60}" />
+                            <Setter Property="BorderBrush" Value="Transparent" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="FontFamily" Value="{StaticResource MainFont}" />
+                </Style>
+                <Style TargetType="GridViewColumnHeader">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Style>
+            </ListView.Resources>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Delete" Width="42">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Remove Service" Name="Remove" Click="DeleteService_Click">
+                                    <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Delete}" />
+                                </Button>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Edit" Width="42">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Edit Service" Name="Edit" Click="Edit_Click">
+                                    <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Pencil}" />
+                                </Button>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Icon" Width="42">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding Icon}" Width="32" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Name" Width="120" DisplayMemberBinding="{Binding Name}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
     </Grid>
 </Window>
