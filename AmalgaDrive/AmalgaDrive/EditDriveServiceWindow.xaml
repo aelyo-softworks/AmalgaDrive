@@ -65,7 +65,7 @@
             <TextBlock Grid.Column="0" Grid.Row="5">Url :</TextBlock>
         </Grid>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Name="OkButton" Click="OkButton_Click" Style="{StaticResource ActionButton}" Width="75" IsEnabled="{Binding IsValid}">OK</Button>
+            <Button Name="OkButton" Click="OkButton_Click" IsDefault="True" Style="{StaticResource ActionButton}" Width="75" IsEnabled="{Binding IsValid}">OK</Button>
             <Border Width="10" />
             <Button Name="CancelButton" Click="Close_Click" Style="{StaticResource ActionButton}" Width="75">Cancel</Button>
         </StackPanel>
