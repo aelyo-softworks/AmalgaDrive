@@ -179,7 +179,6 @@ namespace AmalgaDrive.Utilities
             return s;
         }
 
-
         [StructLayout(LayoutKind.Sequential)]
         private struct DATA_BLOB
         {

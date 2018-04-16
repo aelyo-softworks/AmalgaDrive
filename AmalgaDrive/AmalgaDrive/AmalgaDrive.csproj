@@ -62,11 +62,17 @@
     <Compile Include="Configuration\DriveServiceSettings.cs" />
     <Compile Include="Configuration\Settings.cs" />
     <Compile Include="Drive\DriveServiceDescriptor.cs" />
+    <Compile Include="Drive\IDriveResource.cs" />
     <Compile Include="Drive\IDriveService.cs" />
+    <Compile Include="Drive\LocalDriveService.cs" />
     <Compile Include="Drive\WebDav\WebDavDriveService.cs" />
     <Compile Include="EditDriveServiceWindow.xaml.cs">
       <DependentUpon>EditDriveServiceWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Folder\LocalShellFolder.cs" />
+    <Compile Include="Folder\LocalShellFolderServer.cs" />
+    <Compile Include="Folder\LocalShellItem.cs" />
+    <Compile Include="Folder\RootFolder.cs" />
     <Compile Include="MessageBoxWindow.xaml.cs">
       <DependentUpon>MessageBoxWindow.xaml</DependentUpon>
     </Compile>
@@ -137,5 +143,6 @@
   <ItemGroup>
     <Resource Include="Resources\materialdesignicons-webfont.ttf" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
