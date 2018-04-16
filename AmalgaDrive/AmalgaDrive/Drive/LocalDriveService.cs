@@ -9,7 +9,9 @@ namespace AmalgaDrive.Drive
 {
     public class LocalDriveService
     {
-        public LocalDriveService(IDriveService service, string rootDirectoryPath)
+        public const string HiddenFolderName = ".amalgadrive";
+
+        public LocalDriveService(IRemoteDriveService service, string rootDirectoryPath)
         {
             if (service == null)
                 throw new ArgumentNullException(nameof(service));
@@ -17,12 +19,17 @@ namespace AmalgaDrive.Drive
             if (rootDirectoryPath == null)
                 throw new ArgumentNullException(nameof(rootDirectoryPath));
 
-            DriveService = service;
+            RemoteDriveService = service;
             RootDirectoryPath = rootDirectoryPath;
         }
 
-        public IDriveService DriveService { get; }
+        public IRemoteDriveService RemoteDriveService { get; }
         public string RootDirectoryPath { get; }
+
+        public virtual void SyncWithRemote(string relativePath)
+        {
+            RemoteDriveService.EnumResources(relativePath);
+        }
 
         public virtual IEnumerable<FileSystemInfo> EnumerateFileSystemItems(string relativePath)
         {

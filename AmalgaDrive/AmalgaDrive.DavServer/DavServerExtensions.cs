@@ -19,7 +19,6 @@ namespace AmalgaDrive.DavServer
         public const string MsNamespaceUri = "urn:schemas-microsoft-com:";
         public const string MsNamespacePrefix = "Z";
         public const int MultiStatusCode = 207;
-        public const string DesktopIni = "desktop.ini";
 
         public static void AddDavServer(this IServiceCollection services, IConfiguration configuration, Action<DavServerOptions> setupAction = null)
         {

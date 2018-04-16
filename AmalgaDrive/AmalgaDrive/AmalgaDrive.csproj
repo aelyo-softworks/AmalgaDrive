@@ -61,11 +61,12 @@
   <ItemGroup>
     <Compile Include="Configuration\DriveServiceSettings.cs" />
     <Compile Include="Configuration\Settings.cs" />
-    <Compile Include="Drive\DriveServiceDescriptor.cs" />
-    <Compile Include="Drive\IDriveResource.cs" />
-    <Compile Include="Drive\IDriveService.cs" />
+    <Compile Include="Drive\RemoteDriveServiceDescriptor.cs" />
+    <Compile Include="Drive\IRemoteResource.cs" />
+    <Compile Include="Drive\IRemoteDriveService.cs" />
     <Compile Include="Drive\LocalDriveService.cs" />
     <Compile Include="Drive\WebDav\WebDavDriveService.cs" />
+    <Compile Include="Drive\WebDav\WebDavResource.cs" />
     <Compile Include="EditDriveServiceWindow.xaml.cs">
       <DependentUpon>EditDriveServiceWindow.xaml</DependentUpon>
     </Compile>
@@ -86,6 +87,7 @@
     <Compile Include="Utilities\DictionaryObjectPropertyChangingEventArgs.cs" />
     <Compile Include="Utilities\DictionaryObjectPropertyRollbackEventArgs.cs" />
     <Compile Include="Utilities\DictionaryObjectPropertySetOptions.cs" />
+    <Compile Include="Utilities\UrlUtilities.cs" />
     <Compile Include="Utilities\IChangeEvents.cs" />
     <Compile Include="Utilities\IChangeTrackingDictionaryObject.cs" />
     <Compile Include="Utilities\IDictionaryObject.cs" />

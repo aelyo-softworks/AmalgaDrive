@@ -3,7 +3,7 @@ using System.IO;
 
 namespace AmalgaDrive.Drive
 {
-    public interface IDriveResource
+    public interface IRemoteResource
     {
         string DisplayName { get; set; }
         string ContentType { get; set; }

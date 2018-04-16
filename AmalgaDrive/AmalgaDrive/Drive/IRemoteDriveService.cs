@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Windows.Media;
+using AmalgaDrive.Configuration;
 
 namespace AmalgaDrive.Drive
 {
-    public interface IDriveService
+    public interface IRemoteDriveService
     {
         ImageSource Icon { get; }
 
-        void Initialize(IDictionary<string, object> dictionary);
-        IReadOnlyList<IDriveResource> EnumResources(string parentPath);
-        IDriveResource GetResource(string path);
+        void Initialize(DriveServiceSettings settings, IDictionary<string, object> dictionary);
+        IReadOnlyList<IRemoteResource> EnumResources(string parentPath);
+        IRemoteResource GetResource(string path);
         void CreateFolderResource(string path);
         Stream OpenReadResource(string path);
         Stream OpenWriteResource(string path);
