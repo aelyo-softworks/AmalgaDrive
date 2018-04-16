@@ -17,6 +17,7 @@ namespace AmalgaDrive.DavServer
             list.Add(new DavProperty("displayname", i => i.Name));
             list.Add(new DavProperty("getcontenttype", i => i.GetContentType()));
             list.Add(new DavProperty("getcontentlength", i => i.GetContentLength()));
+            list.Add(new DavProperty("getetag", i => i.GetETag()));
             list.Add(new DavProperty("creationdate", i => i.CreationTimeUtc));
             list.Add(new DavProperty("getlastmodified", i => i.LastWriteTimeUtc));
             list.Add(new DavProperty("Win32FileAttributes", DavServerExtensions.MsNamespaceUri, i => ((int)i.Attributes).ToString("X8")));
@@ -36,17 +37,17 @@ namespace AmalgaDrive.DavServer
         {
         }
 
-        public DavProperty(string name, string namespaceUri, Func<IFileSystemInfo, object> getValueFunc = null)
+        public DavProperty(string localName, string namespaceUri, Func<IFileSystemInfo, object> getValueFunc = null)
         {
-            if (name == null)
-                throw new ArgumentNullException(nameof(name));
+            if (localName == null)
+                throw new ArgumentNullException(nameof(localName));
 
-            Name = name;
+            LocalName = localName;
             NamespaceUri = namespaceUri;
             GetValueFunc = getValueFunc;
         }
 
-        public string Name { get; }
+        public string LocalName { get; }
         public string NamespaceUri { get; }
         public virtual Func<IFileSystemInfo, object> GetValueFunc { get; set; }
         public virtual Func<IFileSystemInfo, XmlWriter, Task> WriteValueFunc { get; set; }
@@ -78,6 +79,6 @@ namespace AmalgaDrive.DavServer
             return int.TryParse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out i);
         }
 
-        public override string ToString() => NamespaceUri + ":" + Name;
+        public override string ToString() => NamespaceUri + ":" + LocalName;
     }
 }

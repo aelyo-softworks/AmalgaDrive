@@ -29,7 +29,7 @@ namespace AmalgaDrive.DavServer
             UnknownProperties = new List<DavProperty>();
             foreach (var propNode in Document.SelectNodes(DavServerExtensions.DavNamespacePrefix + ":propfind/" + DavServerExtensions.DavNamespacePrefix + ":prop/*", NsMgr).OfType<XmlElement>())
             {
-                var kp = DavProperty.AllProperties.FirstOrDefault(p => p.Name == propNode.Name && p.NamespaceUri == propNode.NamespaceURI);
+                var kp = DavProperty.AllProperties.FirstOrDefault(p => p.LocalName == propNode.LocalName && p.NamespaceUri == propNode.NamespaceURI);
                 if (kp != null)
                 {
                     KnownProperties.Add(kp);
@@ -85,7 +85,7 @@ namespace AmalgaDrive.DavServer
                     {
                         var prop = tuple.Item1;
                         var value = tuple.Item2;
-                        await writer.WriteStartElementAsync(null, prop.Name, prop.NamespaceUri);
+                        await writer.WriteStartElementAsync(null, prop.LocalName, prop.NamespaceUri);
                         if (!AllPropertiesNames)
                         {
                             if (prop.WriteValueFunc != null)
@@ -126,7 +126,7 @@ namespace AmalgaDrive.DavServer
                 await writer.WriteStartElementAsync(null, "prop", DavServerExtensions.DavNamespaceUri);
                 foreach (var prop in UnknownProperties)
                 {
-                    await writer.WriteStartElementAsync(null, prop.Name, prop.NamespaceUri);
+                    await writer.WriteStartElementAsync(null, prop.LocalName, prop.NamespaceUri);
                     await writer.WriteEndElementAsync();
                 }
                 await writer.WriteEndElementAsync();

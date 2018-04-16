@@ -70,7 +70,7 @@ namespace AmalgaDrive.DavServer.Controllers
                     foreach (var prop in Request.UpdatedProperties)
                     {
                         await writer.WriteStartElementAsync(null, "prop", DavServerExtensions.DavNamespaceUri);
-                        await writer.WriteElementStringAsync(null, prop.Name, prop.NamespaceUri, string.Empty);
+                        await writer.WriteElementStringAsync(null, prop.LocalName, prop.NamespaceUri, string.Empty);
                         await writer.WriteEndElementAsync(); // prop
                     }
                     await writer.WriteElementStringAsync(null, "status", DavServerExtensions.DavNamespaceUri, "HTTP/1.1 200 OK");
@@ -84,7 +84,7 @@ namespace AmalgaDrive.DavServer.Controllers
                     foreach (var prop in Request.UnknownProperties)
                     {
                         await writer.WriteStartElementAsync(null, "prop", DavServerExtensions.DavNamespaceUri);
-                        await writer.WriteElementStringAsync(null, prop.Name, prop.NamespaceUri, string.Empty);
+                        await writer.WriteElementStringAsync(null, prop.LocalName, prop.NamespaceUri, string.Empty);
                         await writer.WriteEndElementAsync(); // prop
                     }
                     await writer.WriteElementStringAsync(null, "status", DavServerExtensions.DavNamespaceUri, "HTTP/1.1 404 Not Found");
@@ -98,7 +98,7 @@ namespace AmalgaDrive.DavServer.Controllers
                     foreach (var prop in Request.UnauthorizedProperties)
                     {
                         await writer.WriteStartElementAsync(null, "prop", DavServerExtensions.DavNamespaceUri);
-                        await writer.WriteElementStringAsync(null, prop.Name, prop.NamespaceUri, string.Empty);
+                        await writer.WriteElementStringAsync(null, prop.LocalName, prop.NamespaceUri, string.Empty);
                         await writer.WriteEndElementAsync(); // prop
                     }
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using AmalgaDrive.DavServer.FileSystem;
 using AmalgaDrive.DavServer.FileSystem.Local;
 using Microsoft.AspNetCore.Http;
@@ -65,6 +67,28 @@ namespace AmalgaDrive.DavServer
                 return fi.Length.ToString();
 
             return string.Empty;
+        }
+
+        public static string GetETag(this IFileSystemInfo info)
+        {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
+            if (info is IFileInfo fi)
+                return ComputeHash(fi.LastWriteTimeUtc.Ticks.ToString() + "." + fi.Length + "." + (int)fi.Attributes);
+
+            return ComputeHash(info.LastWriteTimeUtc.Ticks.ToString() + "." + (int)info.Attributes);
+        }
+
+        public static string ComputeHash(string text)
+        {
+            if (text == null)
+                return null;
+
+            using (var md5 = MD5.Create())
+            {
+                return Convert.ToBase64String(md5.ComputeHash(Encoding.UTF8.GetBytes(text)));
+            }
         }
 
         public static IEnumerable<IFileSystemInfo> EnumerateFileSystemInfo(this IFileSystem fileSystem, int depth)

@@ -13,6 +13,7 @@ namespace AmalgaDrive.DavServer
         public DavServerOptions()
         {
             BaseUrl = "dav";
+            //BaseUrl = "";
             RootName = "dav";
         }
 

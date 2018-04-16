@@ -32,11 +32,11 @@ namespace AmalgaDrive.DavServer.Controllers
         {
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
             context.HttpContext.Response.ContentType = ContentType;
-            context.HttpContext.Response.Headers["Content-Disposition"] = new ContentDispositionHeaderValue("attachment") { Name = FileName }.ToString();
 
             var input = Stream;
             if (input != null)
             {
+                context.HttpContext.Response.Headers["Content-Disposition"] = new ContentDispositionHeaderValue("attachment") { Name = FileName }.ToString();
                 using (input)
                 {
                     using (var stream = context.HttpContext.Response.Body)

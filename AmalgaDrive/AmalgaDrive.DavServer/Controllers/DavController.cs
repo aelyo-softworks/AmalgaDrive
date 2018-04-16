@@ -21,12 +21,12 @@ namespace AmalgaDrive.DavServer.Controllers
         public IFileSystem FileSystem { get; }
         public ILogger<DavController> Logger { get; }
 
-        private void DumpRequestDocument()
+        private void DumpRequestDocument([CallerMemberName] string methodName = null)
         {
-            var doc = GetRequestDocument();
+            var doc = GetRequestDocument(methodName);
         }
 
-        private XmlDocument GetRequestDocument()
+        private XmlDocument GetRequestDocument([CallerMemberName] string methodName = null)
         {
             string xml;
             using (var stream = Request.Body)
@@ -34,7 +34,7 @@ namespace AmalgaDrive.DavServer.Controllers
                 using (var reader = new StreamReader(Request.Body))
                 {
                     xml = reader.ReadToEnd();
-                    Log("Xml: " + xml);
+                    Log("Xml: " + xml, methodName);
                 }
             }
 
@@ -100,10 +100,7 @@ namespace AmalgaDrive.DavServer.Controllers
             if (!FileSystem.TryGetItem(relativePath, out var info))
                 return NotFound();
 
-            if (!(info is IFileInfo file))
-                return NoContent();
-
-            return new StreamResult(null, file.Name, file.GetContentType());
+            return new StreamResult(null, info.Name, info.GetContentType());
         }
 
         [HttpGet]
@@ -373,6 +370,10 @@ namespace AmalgaDrive.DavServer.Controllers
             if (dr.AllProperties && dr.AllPropertiesNames)
                 return BadRequest();
 
+            // special handling for windows miniredir and other who keep asking for root...
+            if (string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(FileSystem.Options.BaseUrl))
+                return NoContent();
+            
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
