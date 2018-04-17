@@ -10,7 +10,7 @@ namespace AmalgaDrive.Drive
         ImageSource Icon { get; }
 
         void Initialize(DriveServiceSettings settings, IDictionary<string, object> dictionary);
-        IReadOnlyList<IRemoteResource> EnumResources(string parentPath);
+        IEnumerable<IRemoteResource> EnumResources(string parentPath);
         IRemoteResource GetResource(string path);
         void CreateFolderResource(string path);
         Stream OpenReadResource(string path);
