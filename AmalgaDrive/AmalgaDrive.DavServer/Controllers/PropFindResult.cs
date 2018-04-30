@@ -62,6 +62,9 @@ namespace AmalgaDrive.DavServer.Controllers
                 await writer.WriteStartElementAsync(null, "multistatus", DavServerExtensions.DavNamespaceUri);
                 foreach (var info in Infos)
                 {
+                    if (info.System.Options.IsHiddenSegment(info.Name))
+                        continue;
+
                     await writer.WriteStartElementAsync(null, "response", DavServerExtensions.DavNamespaceUri);
                     var href = info.System.Options.GetPublicUri(context.HttpContext.Request, info);
                     await writer.WriteElementStringAsync(null, "href", DavServerExtensions.DavNamespaceUri, href.ToString());

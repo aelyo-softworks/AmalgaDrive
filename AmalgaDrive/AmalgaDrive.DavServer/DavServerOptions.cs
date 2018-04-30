@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using AmalgaDrive.DavServer.FileSystem;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
@@ -15,13 +17,41 @@ namespace AmalgaDrive.DavServer
             BaseUrl = "dav";
             //BaseUrl = "";
             RootName = "dav";
+            ServeHRefsWithoutHost = true;
+            var list  = new List<string>();
+
+            // These are directories or files we don't want to serve.
+            // We must be consistent with the host/reverse proxy (for example IIS/IISExpress) to not send these segments in DAV results.
+            // Otherwise when queried for, the client will get a 404 error back and we can't do nothing against it
+            // the list is copied from a standard IIS's <hiddenSegments> section
+            // https://docs.microsoft.com/en-us/iis/configuration/system.webserver/security/requestfiltering/hiddensegments/
+            list.Add("web.config");
+            list.Add("bin");
+            list.Add("App_code");
+            list.Add("App_GlobalResources");
+            list.Add("App_LocalResources");
+            list.Add("App_WebReferences");
+            list.Add("App_Data");
+            list.Add("App_Browsers");
+
+            HiddenSegments = list.ToArray();
         }
 
+        public virtual string[] HiddenSegments { get; }
         public virtual bool ServeHidden { get; set; }
         public virtual string BaseUrl { get; set; }
         public virtual string PublicHost { get; set; }
         public virtual string RootName { get; set; }
+        public virtual bool ServeHRefsWithoutHost { get; set; }
         public virtual IContentTypeProvider ContentTypeProvider { get; set; }
+
+        public virtual bool IsHiddenSegment(string segment)
+        {
+            if (segment == null)
+                return false;
+
+            return HiddenSegments.Any(s => s.EqualsIgnoreCase(segment));
+        }
 
         public virtual string GetContentType(IFileInfo info)
         {
@@ -96,6 +126,15 @@ namespace AmalgaDrive.DavServer
             }
 
             relativePath = Uri.EscapeUriString(relativePath);
+
+            if (info is IDirectoryInfo && !relativePath.EndsWith("/"))
+            {
+                relativePath += "/";
+            }
+
+            if (ServeHRefsWithoutHost)
+                return new Uri("/" + relativePath, UriKind.Relative);
+
             return new Uri(new Uri(publicBaseUrl), relativePath);
         }
     }

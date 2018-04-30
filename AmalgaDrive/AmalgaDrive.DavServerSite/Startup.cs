@@ -55,7 +55,7 @@ namespace AmalgaDrive.DavServerSite
 
             app.UseMvc();
             app.UseDefaultFiles();
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions { ServeUnknownFileTypes = true });
         }
     }
 }
