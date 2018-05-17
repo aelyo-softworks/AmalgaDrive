@@ -22,7 +22,7 @@ namespace AmalgaDrive
             DataContext = service;
             InitializeComponent();
             DependencyPropertyDescriptor.FromProperty(TitleProperty, typeof(Window)).AddValueChanged(this, (sender, args) => ThisTitle.Text = Title);
-            ServiceType.ItemsSource = RemoteDriveServiceDescriptor.ScanDescriptors();
+            ServiceType.ItemsSource = DriveServiceDescriptor.ScanDescriptors();
             ServicePassword.IsInactiveSelectionHighlightEnabled = true;
 
             Title = string.IsNullOrWhiteSpace(service.Name) ? "Add a Cloud Service" : "'" + service.Name + "' Cloud Service";

@@ -11,7 +11,7 @@ namespace AmalgaDrive.Model
     public class DriveService : DriveObject
     {
         private Lazy<ImageSource> _icon;
-        private Lazy<IRemoteDriveService> _service;
+        private Lazy<IDriveService> _service;
 
         public DriveService()
             : this(null)
@@ -29,7 +29,7 @@ namespace AmalgaDrive.Model
                 Password = settings.Password;
             }
 
-            _service = new Lazy<IRemoteDriveService>(GetService, true);
+            _service = new Lazy<IDriveService>(GetService, true);
             _icon = new Lazy<ImageSource>(GetIcon, true);
         }
 
@@ -45,7 +45,7 @@ namespace AmalgaDrive.Model
                 if (DictionaryObjectSetPropertyValue(value))
                 {
                     // reset
-                    _service = new Lazy<IRemoteDriveService>(GetService, true);
+                    _service = new Lazy<IDriveService>(GetService, true);
                     _icon = new Lazy<ImageSource>(GetIcon, true);
                     OnPropertyChanged(this, nameof(Service));
                     OnPropertyChanged(this, nameof(Icon));
@@ -53,10 +53,10 @@ namespace AmalgaDrive.Model
             }
         }
 
-        public IRemoteDriveService Service => _service.Value;
+        public IDriveService Service => _service.Value;
         public ImageSource Icon => _icon.Value;
 
-        private IRemoteDriveService GetService()
+        private IDriveService GetService()
         {
             if (string.IsNullOrWhiteSpace(TypeName))
                 return null;
@@ -65,10 +65,10 @@ namespace AmalgaDrive.Model
             if (type == null)
                 return null;
 
-            return Activator.CreateInstance(type) as IRemoteDriveService;
+            return Activator.CreateInstance(type) as IDriveService;
         }
 
-        private ImageSource GetIcon() => _service.Value?.Icon;
+        private ImageSource GetIcon() => _service.Value.Icon;
 
         public override string ToString() => Name;
 

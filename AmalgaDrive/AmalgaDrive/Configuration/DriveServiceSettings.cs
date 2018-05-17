@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Security;
 using System.Xml.Serialization;
 using AmalgaDrive.Model;
@@ -30,6 +31,7 @@ namespace AmalgaDrive.Configuration
         public string TypeName { get; set; }
         public string BaseUrl { get; set; }
         public string Login { get; set; }
+        public Uri BaseUri => new Uri(BaseUrl, UriKind.Absolute);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [XmlAttribute(AttributeName = "Password")]

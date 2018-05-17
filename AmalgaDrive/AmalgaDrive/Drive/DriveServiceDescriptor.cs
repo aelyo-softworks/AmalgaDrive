@@ -8,9 +8,9 @@ using System.Reflection;
 namespace AmalgaDrive.Drive
 {
     [Serializable]
-    public class RemoteDriveServiceDescriptor
+    public class DriveServiceDescriptor
     {
-        private RemoteDriveServiceDescriptor(Type type)
+        private DriveServiceDescriptor(Type type)
         {
             AssemblyQualifiedName = type.AssemblyQualifiedName;
             var dna = type.GetCustomAttributesData().FirstOrDefault(a => a.AttributeType.FullName == typeof(DisplayNameAttribute).FullName);
@@ -29,7 +29,7 @@ namespace AmalgaDrive.Drive
 
         public override string ToString() => DisplayName;
 
-        public static IEnumerable<RemoteDriveServiceDescriptor> ScanDescriptors()
+        public static IEnumerable<DriveServiceDescriptor> ScanDescriptors()
         {
             var domain = AppDomain.CreateDomain(Guid.NewGuid().ToString("N"));
             var pd = (RemoteObject)domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(RemoteObject).FullName);
@@ -46,10 +46,10 @@ namespace AmalgaDrive.Drive
 
         private class RemoteObject : MarshalByRefObject
         {
-            public RemoteDriveServiceDescriptor[] ScanDescriptors(string path)
+            public DriveServiceDescriptor[] ScanDescriptors(string path)
             {
                 AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += (sender, args) => Assembly.ReflectionOnlyLoad(args.Name);
-                var list = new List<RemoteDriveServiceDescriptor>();
+                var list = new List<DriveServiceDescriptor>();
                 if (Directory.Exists(path))
                 {
                     foreach (var file in Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories))
@@ -72,9 +72,9 @@ namespace AmalgaDrive.Drive
                         }
 
                         // note iface comparison is by name, not by type
-                        foreach (var type in asm.GetExportedTypes().Where(t => t.GetInterfaces().Any(i => i.FullName == typeof(IRemoteDriveService).FullName)))
+                        foreach (var type in asm.GetExportedTypes().Where(t => t.GetInterfaces().Any(i => i.FullName == typeof(IDriveService).FullName)))
                         {
-                            list.Add(new RemoteDriveServiceDescriptor(type));
+                            list.Add(new DriveServiceDescriptor(type));
                         }
                     }
                 }

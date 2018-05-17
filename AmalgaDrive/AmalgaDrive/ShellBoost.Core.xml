@@ -758,6 +758,14 @@
             <param name="context">The operation context.</param>
             <param name="path">The directory path.</param>
         </member>
+        <member name="M:ShellBoost.Core.IRemoteFileSystem.TryGetPropertyValue(System.String,System.Object@)">
+            <summary>
+            Gets a property value by its name. This provides a simple extension mechanism to the Remote File System implementation.
+            </summary>
+            <param name="name">The property name.</param>
+            <param name="value">The value.</param>
+            <returns><c>true</c> if the property was read, <c>false</c> otherwise.</returns>
+        </member>
         <member name="T:ShellBoost.Core.IRemoteResource">
             <summary>
             Defines a remote resource. A resource is a file or a directory.
