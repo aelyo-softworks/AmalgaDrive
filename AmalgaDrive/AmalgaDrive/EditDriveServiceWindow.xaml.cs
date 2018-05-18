@@ -18,6 +18,7 @@ namespace AmalgaDrive
             if (service == null)
                 throw new ArgumentNullException(nameof(service));
 
+            IsNew = string.IsNullOrEmpty(service.Name);
             Service = service;
             DataContext = service;
             InitializeComponent();
@@ -25,7 +26,7 @@ namespace AmalgaDrive
             ServiceType.ItemsSource = DriveServiceDescriptor.ScanDescriptors();
             ServicePassword.IsInactiveSelectionHighlightEnabled = true;
 
-            Title = string.IsNullOrWhiteSpace(service.Name) ? "Add a Cloud Service" : "'" + service.Name + "' Cloud Service";
+            Title = string.IsNullOrWhiteSpace(service.Name) ? "Add a Cloud Drive" : "'" + service.Name + "' Cloud Drive";
 
             if (service.Password != null && service.Password.Length > 0)
             {
@@ -34,6 +35,7 @@ namespace AmalgaDrive
             }
         }
 
+        public bool IsNew { get; }
         public DriveService Service { get; }
 
         private void DockPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => DragMove();

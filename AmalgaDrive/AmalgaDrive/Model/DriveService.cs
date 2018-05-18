@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
 using System.Security;
 using System.Windows.Media;
 using AmalgaDrive.Configuration;
@@ -10,6 +11,8 @@ namespace AmalgaDrive.Model
 {
     public class DriveService : DriveObject
     {
+        public static readonly string AllRootsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "AmalgaDrive");
+
         private Lazy<ImageSource> _icon;
         private Lazy<IDriveService> _service;
 
@@ -37,6 +40,20 @@ namespace AmalgaDrive.Model
         public string Login { get => DictionaryObjectGetPropertyValue<string>(); set => DictionaryObjectSetPropertyValue(value); }
         public string BaseUrl { get => DictionaryObjectGetPropertyValue<string>(); set => DictionaryObjectSetPropertyValue(value); }
         public SecureString Password { get => DictionaryObjectGetPropertyValue<SecureString>(); set => DictionaryObjectSetPropertyValue(value); }
+
+        public string RootPath
+        {
+            get
+            {
+                string path = Path.Combine(AllRootsPath, IOUtilities.PathToValidFileName(Name));
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                return path;
+            }
+        }
+
         public string TypeName
         {
             get => DictionaryObjectGetPropertyValue<string>();

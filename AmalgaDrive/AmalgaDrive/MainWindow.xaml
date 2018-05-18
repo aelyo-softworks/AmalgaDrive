@@ -23,7 +23,8 @@
                 </MenuItem>
                 <MenuItem Header="_Tools" Template="{StaticResource VsMenuTop}">
                     <MenuItem Header="_Settings" Template="{StaticResource VsMenuSub}" Name="ToolsOptions" Click="Options_Click" />
-                    <MenuItem Header="_Logs" Template="{StaticResource VsMenuSub}" />
+                    <MenuItem Header="_Logs" Template="{StaticResource VsMenuSub}" Name="Logs" Click="Logs_Click" />
+                    <MenuItem Header="_Restart Explorer" Template="{StaticResource VsMenuSub}" Name="RestartExplorer" Click="RestartExplorer_Click"  />
                     <Separator Template="{StaticResource VsMenuSep}" />
                     <MenuItem Header="_Open Configuration Path" Template="{StaticResource VsMenuSub}" Name="OpenConfig" Click="OpenConfig_Click" />
                 </MenuItem>
@@ -75,11 +76,35 @@
             </ListView.Resources>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Delete" Width="42">
+                    <GridViewColumn Header="Icon" Width="42">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Remove Service" Name="Remove" Click="DeleteService_Click">
-                                    <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Delete}" />
+                                <Image Source="{Binding Icon}" Width="32" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Name" Width="120" DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Header="Path" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding RootPath}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Open" Width="42">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Open Path" Name="OpenPath" Click="OpenPath_Click">
+                                    <TextBlock Text="{x:Static md:MaterialDesignStringIcons.OpenInNew}" />
+                                </Button>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Open" Width="42">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Open Extension" Name="OpenExtension" Click="OpenExtension_Click">
+                                    <TextBlock Text="{x:Static md:MaterialDesignStringIcons.FolderOpen}" />
                                 </Button>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
@@ -93,14 +118,15 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Icon" Width="42">
+                    <GridViewColumn Header="Delete" Width="42">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding Icon}" Width="32" />
+                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Remove Service" Name="Remove" Click="DeleteService_Click">
+                                    <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Delete}" />
+                                </Button>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Name" Width="120" DisplayMemberBinding="{Binding Name}" />
                 </GridView>
             </ListView.View>
         </ListView>

@@ -1,27 +1,47 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using AmalgaDrive.Configuration;
+using AmalgaDrive.Folder;
 using AmalgaDrive.Model;
 using AmalgaDrive.Utilities;
+using ShellBoost.Core;
 using ShellBoost.Core.Utilities;
+using ShellBoost.Core.WindowsShell;
 
 namespace AmalgaDrive
 {
     public partial class MainWindow : Window
     {
         private HwndSource _source;
+        private Thread _serverThread;
+        private AutoResetEvent _serverStopEvent;
         private System.Windows.Forms.NotifyIcon _notifyIcon = new System.Windows.Forms.NotifyIcon();
+        private LogsWindow _logs;
         private State _state;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            _logs = new LogsWindow();
+
+            AppendText("AmalgaDrive " + (IntPtr.Size == 8 ? "64" : "32") + "bit - V" + Assembly.GetExecutingAssembly().GetInformationalVersion() + " - Copyright © 2017-" + DateTime.Now.Year + " Aelyo Softworks. All rights reserved.");
+            AppendText();
+
+            _serverStopEvent = new AutoResetEvent(false);
+            _serverThread = new Thread(DriveThread);
+            _serverThread.IsBackground = true;
+            _serverThread.Start();
 
             // NOTE: icon resource must be named same as namespace + icon
             Icon = UIUtilities.IconSource;
@@ -37,6 +57,51 @@ namespace AmalgaDrive
             _state = new State(this);
             DataContext = _state;
             ReloadItems();
+        }
+
+        private void DriveThread(object state)
+        {
+            var logger = new Logger(this);
+            var config = new ShellFolderConfiguration();
+            config.Logger = logger;
+
+            do
+            {
+                try
+                {
+                    ShellFolderServer.RegisterNativeDll(RegistrationMode.User);
+                    ShellUtilities.RefreshShellViews();
+
+                    using (var server = new OnDemandShellFolderServer(new DirectoryInfo(DriveService.AllRootsPath)))
+                    {
+                        server.Start(config);
+                        AppendText("Started listening on proxy id " + ShellFolderServer.ProxyId);
+                        _serverStopEvent.WaitOne();
+                        return;
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.Log(TraceLevel.Error, "An error occurred: " + e);
+                    Thread.Sleep(1000);
+                }
+            }
+            while (true);
+        }
+
+        private class Logger : ILogger
+        {
+            private MainWindow _window;
+
+            public Logger(MainWindow window)
+            {
+                _window = window;
+            }
+
+            public void Log(TraceLevel level, object value, [CallerMemberName] string methodName = null)
+            {
+                _window.AppendText("[" + level + "]" + methodName + ": " + value);
+            }
         }
 
         private class State : INotifyPropertyChanged
@@ -58,6 +123,25 @@ namespace AmalgaDrive
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MaximizeVisibility)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RestoreVisibility)));
             }
+        }
+
+        public void AppendText() => AppendText(null);
+        public void AppendText(string text)
+        {
+            if (text != null)
+            {
+                text = DateTime.Now + "[" + Thread.CurrentThread.ManagedThreadId + "]: " + text;
+            }
+
+            Dispatcher.BeginInvoke(() =>
+            {
+                _logs.TB.Text += Environment.NewLine;
+                if (text != null)
+                {
+                    _logs.TB.Text += text;
+                }
+                _logs.TB.ScrollToEnd();
+            });
         }
 
         private void ReloadItems()
@@ -91,7 +175,24 @@ namespace AmalgaDrive
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
+            ShellFolderServer.UnregisterNativeDll(RegistrationMode.User);
+            ShellUtilities.RefreshShellViews();
+
+            if (_serverStopEvent != null)
+            {
+                _serverStopEvent.Set();
+                _serverStopEvent.Dispose();
+            }
+
+            var thread = _serverThread;
+            if (thread != null)
+            {
+                thread.Join(1000);
+            }
             _notifyIcon?.Dispose();
+
+            _logs.Hide();
+            _logs.Close();
         }
 
         // hide if manually minimized
@@ -199,5 +300,43 @@ namespace AmalgaDrive
 
         private void Edit_Click(object sender, RoutedEventArgs e) => EditService(UIUtilities.GetDataContext<DriveService>(sender));
         private void Drives_MouseDoubleClick(object sender, MouseButtonEventArgs e) => EditService(UIUtilities.GetDataContext<DriveService>(e.OriginalSource));
+        private void OpenPath_Click(object sender, RoutedEventArgs e) => WindowsUtilities.OpenExplorer(UIUtilities.GetDataContext<DriveService>(sender).RootPath);
+
+        private void OpenExtension_Click(object sender, RoutedEventArgs e)
+        {
+            var id = ShellFolderServer.LocationFolderId;
+            var kn = KnownFolder.Get(id);
+            var idl = kn.GetIdList(KNOWN_FOLDER_FLAG.KF_FLAG_DEFAULT);
+
+            dynamic window = new ShellUtilities.ShellBrowserWindow();
+            ShellUtilities.CoAllowSetForegroundWindow(window);
+            window.Visible = true;
+            window.Navigate2(idl.Data);
+        }
+
+        private void Logs_Click(object sender, RoutedEventArgs e)
+        {
+            if (_logs.Visibility == Visibility.Visible)
+            {
+                _logs.Hide();
+            }
+            else
+            {
+                _logs.Show();
+            }
+        }
+
+        private void RestartExplorer_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadPool.QueueUserWorkItem((state) =>
+            {
+                var rm = new RestartManager();
+                rm.RestartExplorerProcesses((s) =>
+                {
+                    AppendText("Windows Explorer was stopped...");
+                }, false, out Exception error);
+                AppendText("Windows Explorer was restarted...");
+            });
+        }
     }
 }

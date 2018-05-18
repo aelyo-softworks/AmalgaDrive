@@ -54,9 +54,9 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Grid.Row="0">Type :</TextBlock>
-            <ComboBox Grid.Column="1" Grid.Row="0" Name="ServiceType" DisplayMemberPath="DisplayName" SelectedValuePath="AssemblyQualifiedName" SelectedValue="{Binding TypeName, UpdateSourceTrigger=PropertyChanged}" />
+            <ComboBox Grid.Column="1" Grid.Row="0" IsEnabled="{Binding IsNew, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" Name="ServiceType" DisplayMemberPath="DisplayName" SelectedValuePath="AssemblyQualifiedName" SelectedValue="{Binding TypeName, UpdateSourceTrigger=PropertyChanged}" />
             <TextBlock Grid.Column="0" Grid.Row="1">Name :</TextBlock>
-            <TextBox Grid.Column="1" Grid.Row="1" Name="ServiceName" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox Grid.Column="1" Grid.Row="1" IsEnabled="{Binding IsNew, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" Name="ServiceName" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
             <TextBlock Grid.Column="0" Grid.Row="2">Login :</TextBlock>
             <TextBox Grid.Column="1" Grid.Row="2" Name="ServiceLogin" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" />
             <TextBlock Grid.Column="0" Grid.Row="3">Password :</TextBlock>
