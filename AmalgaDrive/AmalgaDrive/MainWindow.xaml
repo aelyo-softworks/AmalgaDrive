@@ -84,6 +84,15 @@
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="Name" Width="120" DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Header="Synchronization State" Width="42">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Open Path" Name="OpenPath" Click="OpenPath_Click">
+                                    <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Sync}" />
+                                </Button>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                     <GridViewColumn Header="Path" >
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
@@ -91,7 +100,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Open" Width="42">
+                    <GridViewColumn Header="Open Path" Width="42">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Open Path" Name="OpenPath" Click="OpenPath_Click">
@@ -100,7 +109,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Open" Width="42">
+                    <GridViewColumn Header="Open Extension" Width="42">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Open Extension" Name="OpenExtension" Click="OpenExtension_Click">
@@ -118,7 +127,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Delete" Width="42">
+                    <GridViewColumn Header="Remove" Width="42">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Remove Service" Name="Remove" Click="DeleteService_Click">
