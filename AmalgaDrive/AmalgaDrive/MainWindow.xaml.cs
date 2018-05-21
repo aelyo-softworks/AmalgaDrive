@@ -59,6 +59,14 @@ namespace AmalgaDrive
             ReloadItems();
         }
 
+        private void EnsureOnDemandSynchronizers()
+        {
+            foreach (var setting in Settings.Current.DriveServiceSettings)
+            {
+                OnDemandSynchronizer.EnsureRegistered(setting.Service.RootPath, setting.Service.OnDemandRegistration);
+            }
+        }
+
         private void DriveThread(object state)
         {
             var logger = new Logger(this);
@@ -146,7 +154,7 @@ namespace AmalgaDrive
 
         private void ReloadItems()
         {
-            Drives.ItemsSource = Settings.Current.DriveServices.Select(s => new DriveService(s));
+            Drives.ItemsSource = Settings.Current.DriveServiceSettings.Select((s) => s.Service);
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -278,7 +286,7 @@ namespace AmalgaDrive
         private void DeleteService_Click(object sender, RoutedEventArgs e)
         {
             var service = UIUtilities.GetDataContext<DriveService>(sender);
-            if (this.ShowConfirm("Are you sure you want to remove the '" + service.Name + "' service?") != MessageBoxResult.Yes)
+            if (this.ShowConfirm("Are you sure you want to remove the '" + service.Name + "' service? Note it can take some time if the number of synchronized files is important.") != MessageBoxResult.Yes)
                 return;
 
             Settings.Current.RemoveDriveService(service.Name);

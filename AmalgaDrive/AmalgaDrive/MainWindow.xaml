@@ -17,9 +17,9 @@
                 <MenuItem Header="_File" Template="{StaticResource VsMenuTop}" >
                     <MenuItem Header="_Add a Cloud Drive..." Template="{StaticResource VsMenuSub}" Name="AddDrive" Click="AddDrive_Click" />
                     <Separator Template="{StaticResource VsMenuSep}" />
-                    <MenuItem Header="_Close" Template="{StaticResource VsMenuSub}" Name="FileMinimize" Click="Minimize_Click" />
+                    <MenuItem Header="_Close / Minimize" Template="{StaticResource VsMenuSub}" Name="FileMinimize" Click="Minimize_Click" />
                     <Separator Template="{StaticResource VsMenuSep}" />
-                    <MenuItem Header="_Stop Synchronization and Quit" Template="{StaticResource VsMenuSub}" Name="FileExit" Click="FileExit_Click" />
+                    <MenuItem Header="_Pause Synchronization and Quit" Template="{StaticResource VsMenuSub}" Name="FileExit" Click="FileExit_Click" />
                 </MenuItem>
                 <MenuItem Header="_Tools" Template="{StaticResource VsMenuTop}">
                     <MenuItem Header="_Settings" Template="{StaticResource VsMenuSub}" Name="ToolsOptions" Click="Options_Click" />

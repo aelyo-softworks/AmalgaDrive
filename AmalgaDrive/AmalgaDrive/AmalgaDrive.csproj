@@ -81,6 +81,7 @@
     <Compile Include="Model\DriveObject.cs" />
     <Compile Include="Model\DriveService.cs" />
     <Compile Include="Resources\MaterialDesignIcons.cs" />
+    <Compile Include="SyncPeriodTextBox.cs" />
     <Compile Include="Utilities\ChangeTrackingDictionaryObject.cs" />
     <Compile Include="Utilities\DictionaryObject.cs" />
     <Compile Include="Utilities\DictionaryObjectProperty.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Utilities\IDictionaryObject.cs" />
     <Compile Include="Utilities\SecurityUtilities.cs" />
     <Compile Include="Utilities\Serializable.cs" />
+    <Compile Include="Utilities\ValidatingTextBox.cs" />
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

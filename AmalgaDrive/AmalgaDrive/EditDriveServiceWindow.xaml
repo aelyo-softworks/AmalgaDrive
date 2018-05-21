@@ -37,12 +37,17 @@
                     <Setter Property="Margin" Value="5" />
                     <Setter Property="Height" Value="25" />
                 </Style>
+                <Style TargetType="local:SyncPeriodTextBox" BasedOn="{StaticResource FormTextBox}">
+                    <Setter Property="Margin" Value="5" />
+                    <Setter Property="Height" Value="25" />
+                </Style>
                 <Style TargetType="PasswordBox">
                     <Setter Property="Margin" Value="5" />
                     <Setter Property="Height" Value="25" />
                 </Style>
             </Grid.Resources>
             <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
@@ -62,7 +67,9 @@
             <TextBlock Grid.Column="0" Grid.Row="3">Password :</TextBlock>
             <PasswordBox Grid.Column="1" Grid.Row="3" Name="ServicePassword" PasswordChanged="ServicePassword_PasswordChanged"/>
             <TextBox Grid.Column="1" Grid.Row="4" Name="BaseUrl" Text="{Binding BaseUrl, UpdateSourceTrigger=PropertyChanged}" />
-            <TextBlock Grid.Column="0" Grid.Row="5">Url :</TextBlock>
+            <TextBlock Grid.Column="0" Grid.Row="4">Url :</TextBlock>
+            <local:SyncPeriodTextBox Grid.Column="1" Grid.Row="5" x:Name="SyncPeriod" Text="{Binding SyncPeriod, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Grid.Column="0" Grid.Row="5">Sync Period (sec) :</TextBlock>
         </Grid>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Name="OkButton" Click="OkButton_Click" IsDefault="True" Style="{StaticResource ActionButton}" Width="75" IsEnabled="{Binding IsValid}">OK</Button>

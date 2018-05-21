@@ -5,6 +5,7 @@ using System.Security;
 using System.Windows.Media;
 using AmalgaDrive.Configuration;
 using AmalgaDrive.Drive;
+using ShellBoost.Core;
 using ShellBoost.Core.Utilities;
 
 namespace AmalgaDrive.Model
@@ -15,6 +16,7 @@ namespace AmalgaDrive.Model
 
         private Lazy<ImageSource> _icon;
         private Lazy<IDriveService> _service;
+        private Lazy<OnDemandSynchronizer> _onDemandSynchronizer;
 
         public DriveService()
             : this(null)
@@ -34,12 +36,26 @@ namespace AmalgaDrive.Model
 
             _service = new Lazy<IDriveService>(GetService, true);
             _icon = new Lazy<ImageSource>(GetIcon, true);
+            _onDemandSynchronizer = new Lazy<OnDemandSynchronizer>(GetSynchronizer, true);
+            SyncPeriod = 300;
         }
 
+        public OnDemandSynchronizer OnDemandSynchronizer => _onDemandSynchronizer.Value;
         public string Name { get => DictionaryObjectGetPropertyValue<string>(); set => DictionaryObjectSetPropertyValue(value); }
         public string Login { get => DictionaryObjectGetPropertyValue<string>(); set => DictionaryObjectSetPropertyValue(value); }
         public string BaseUrl { get => DictionaryObjectGetPropertyValue<string>(); set => DictionaryObjectSetPropertyValue(value); }
         public SecureString Password { get => DictionaryObjectGetPropertyValue<SecureString>(); set => DictionaryObjectSetPropertyValue(value); }
+        public int SyncPeriod { get => DictionaryObjectGetPropertyValue<int>(); set => DictionaryObjectSetPropertyValue(value); }
+
+        public OnDemandRegistration OnDemandRegistration
+        {
+            get
+            {
+                var reg = new OnDemandRegistration();
+                reg.ProviderName = "AmalgaDrive - " + Name;
+                return reg;
+            }
+        }
 
         public string RootPath
         {
@@ -86,6 +102,12 @@ namespace AmalgaDrive.Model
         }
 
         private ImageSource GetIcon() => _service.Value.Icon;
+
+        private OnDemandSynchronizer GetSynchronizer()
+        {
+            var sync = new OnDemandSynchronizer(RootPath, Service);
+            return sync;
+        }
 
         public override string ToString() => Name;
 

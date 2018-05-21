@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmalgaDrive.Utilities;
+using ShellBoost.Core;
 using ShellBoost.Core.Utilities;
 
 namespace AmalgaDrive.Configuration
@@ -14,7 +15,7 @@ namespace AmalgaDrive.Configuration
 
         private List<DriveServiceSettings> _driveServices = new List<DriveServiceSettings>();
 
-        public DriveServiceSettings[] DriveServices { get => _driveServices.ToArray(); set => _driveServices = new List<DriveServiceSettings>(value ?? (new DriveServiceSettings[0])); }
+        public DriveServiceSettings[] DriveServiceSettings { get => _driveServices.ToArray(); set => _driveServices = new List<DriveServiceSettings>(value ?? (new DriveServiceSettings[0])); }
 
         public void Serialize() => Serialize(DefaultConfigurationFilePath);
 
@@ -45,6 +46,8 @@ namespace AmalgaDrive.Configuration
             int index = _driveServices.FindIndex(d => d.Name.EqualsIgnoreCase(driveServiceName));
             if (index < 0)
                 return false;
+
+            OnDemandSynchronizer.Unregister(_driveServices[index].Service.RootPath, _driveServices[index].Service.OnDemandRegistration);
 
             _driveServices.RemoveAt(index);
             Serialize();

@@ -9,6 +9,8 @@ namespace AmalgaDrive.Configuration
 {
     public class DriveServiceSettings
     {
+        private Lazy<DriveService> _service;
+
         // for xml serialization
         public DriveServiceSettings()
             : this(null)
@@ -25,6 +27,7 @@ namespace AmalgaDrive.Configuration
                 Password = service.Password;
                 BaseUrl = service.BaseUrl;
             }
+            _service = new Lazy<DriveService>(() => new DriveService(this));
         }
 
         public string Name { get; set; }
@@ -32,6 +35,7 @@ namespace AmalgaDrive.Configuration
         public string BaseUrl { get; set; }
         public string Login { get; set; }
         public Uri BaseUri => new Uri(BaseUrl, UriKind.Absolute);
+        public DriveService Service => _service.Value;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [XmlAttribute(AttributeName = "Password")]

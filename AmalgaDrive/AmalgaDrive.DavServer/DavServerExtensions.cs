@@ -36,8 +36,7 @@ namespace AmalgaDrive.DavServer
                     typeName = typeof(LocalFileSystem).AssemblyQualifiedName;
                 }
 
-                var fs = Activator.CreateInstance(Type.GetType(typeName, true)) as IFileSystem;
-                if (fs == null)
+                if (!(Activator.CreateInstance(Type.GetType(typeName, true)) is IFileSystem fs))
                     throw new DavServerException("0003: Type '" + typeName + "' is not an " + nameof(IFileSystem) + ".");
 
                 var dic = configuration.GetSection(DavServerConfigPath + "Properties").GetChildren().ToDictionary(c1 => c1.Key, c2 => c2.Value);

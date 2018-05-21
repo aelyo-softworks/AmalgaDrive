@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -14,6 +13,8 @@ namespace AmalgaDrive.DavServerSite
 {
     public class Startup
     {
+        public static DavServerOptions Options { get; private set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -33,6 +34,7 @@ namespace AmalgaDrive.DavServerSite
             services.AddDavServer(Configuration, options =>
             {
                 // options.ServeHidden = true;
+                Options = options;
             });
 
             services.Configure<KestrelServerOptions>(o =>
@@ -53,9 +55,9 @@ namespace AmalgaDrive.DavServerSite
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
             app.UseDefaultFiles();
-            app.UseStaticFiles(new StaticFileOptions { ServeUnknownFileTypes = true });
+            app.UseStaticFiles();
+            app.UseMvc();
         }
     }
 }
