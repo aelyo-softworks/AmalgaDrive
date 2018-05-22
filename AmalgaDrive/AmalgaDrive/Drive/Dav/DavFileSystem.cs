@@ -11,6 +11,7 @@ using System.Text;
 using System.Windows.Media;
 using System.Xml;
 using AmalgaDrive.Configuration;
+using AmalgaDrive.Model;
 using ShellBoost.Core;
 using ShellBoost.Core.Utilities;
 
@@ -34,14 +35,14 @@ namespace AmalgaDrive.Drive.Dav
             NsMgr.AddNamespace(MsNamespacePrefix, MsNamespaceUri);
         }
 
-        public DriveServiceSettings Settings { get; private set; }
+        public DriveService DriveService { get; private set; }
 
-        public virtual void Initialize(DriveServiceSettings settings, IDictionary<string, object> dictionary)
+        public virtual void Initialize(DriveService driveService, IDictionary<string, object> dictionary)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
+            if (driveService == null)
+                throw new ArgumentNullException(nameof(driveService));
 
-            Settings = settings;
+            DriveService = driveService;
         }
 
         public ImageSource Icon => StockIcon.GetStockBitmap(StockIconId.MYNETWORK, StockIcon.SHGSI.SHGSI_LARGEICON);
@@ -53,10 +54,10 @@ namespace AmalgaDrive.Drive.Dav
             if (client == null)
                 throw new ArgumentNullException(nameof(client));
 
-            if (!string.IsNullOrWhiteSpace(Settings.Login))
+            if (!string.IsNullOrWhiteSpace(DriveService.Login))
             {
-                client.Credentials = new NetworkCredential(Settings.Login, Settings.Password);
-                client.Headers.Add(HttpRequestHeader.Authorization, "Basic " + Convert.ToBase64String(Encoding.GetEncoding("ISO-8859-1").GetBytes(Settings.Login + ":" + Settings.Password.ToInsecureString())));
+                client.Credentials = new NetworkCredential(DriveService.Login, DriveService.Password);
+                client.Headers.Add(HttpRequestHeader.Authorization, "Basic " + Convert.ToBase64String(Encoding.GetEncoding("ISO-8859-1").GetBytes(DriveService.Login + ":" + DriveService.Password.ToInsecureString())));
             }
         }
 
@@ -296,7 +297,7 @@ namespace AmalgaDrive.Drive.Dav
                 throw new ArgumentNullException(nameof(parentPath));
 
             // note this code handles file names that contains url special chars, like '#'
-            var builder = new UriBuilder(Settings.BaseUri.Scheme, Settings.BaseUri.Host, Settings.BaseUri.Port, Settings.BaseUri.AbsolutePath);
+            var builder = new UriBuilder(DriveService.BaseUri.Scheme, DriveService.BaseUri.Host, DriveService.BaseUri.Port, DriveService.BaseUri.AbsolutePath);
             if (parentPath != null)
             {
                 builder.Path = IOUtilities.UrlCombine(builder.Path, parentPath);
@@ -356,11 +357,11 @@ namespace AmalgaDrive.Drive.Dav
                     // handle relative urls
                     if (href.StartsWith("/"))
                     {
-                        href = Settings.BaseUri.Scheme + "://" + Settings.BaseUri.Authority + href;
+                        href = DriveService.BaseUri.Scheme + "://" + DriveService.BaseUri.Authority + href;
                     }
                     else if (!href.StartsWith("http:") && !href.StartsWith("https:"))
                     {
-                        href = IOUtilities.UrlCombine(Settings.BaseUri.ToString(), href);
+                        href = IOUtilities.UrlCombine(DriveService.BaseUri.ToString(), href);
                     }
 
                     // skip root dir

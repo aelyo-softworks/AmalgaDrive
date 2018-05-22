@@ -65,8 +65,7 @@ namespace AmalgaDrive
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            var setting = new DriveServiceSettings(Service);
-            Settings.Current.SetDriveService(setting);
+            Settings.Current.SetDriveService(Service);
             DialogResult = true;
             Close();
         }

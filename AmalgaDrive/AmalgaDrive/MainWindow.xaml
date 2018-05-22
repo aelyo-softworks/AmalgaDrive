@@ -87,8 +87,32 @@
                     <GridViewColumn Header="Synchronization State" Width="42">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Open Path" Name="OpenPath" Click="OpenPath_Click">
-                                    <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Sync}" />
+                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" Foreground="Green" ToolTip="{Binding SynchronizingText}">
+                                    <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Sync}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <RotateTransform Angle="0" CenterX="10" CenterY="10" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Synchronizing, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Value="true">
+                                                        <DataTrigger.EnterActions>
+                                                            <BeginStoryboard Name="Rotate">
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle" From="360" To="0" Duration="0:0:3" RepeatBehavior="Forever" />
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </DataTrigger.EnterActions>
+                                                        <DataTrigger.ExitActions>
+                                                            <RemoveStoryboard BeginStoryboardName="Rotate" />
+                                                        </DataTrigger.ExitActions>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                 </Button>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>

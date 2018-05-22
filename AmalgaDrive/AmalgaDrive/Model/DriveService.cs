@@ -2,7 +2,9 @@
 using System.Collections;
 using System.IO;
 using System.Security;
+using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
 using AmalgaDrive.Configuration;
 using AmalgaDrive.Drive;
 using ShellBoost.Core;
@@ -25,6 +27,9 @@ namespace AmalgaDrive.Model
 
         public DriveService(DriveServiceSettings settings)
         {
+            _service = new Lazy<IDriveService>(GetService, true);
+            _icon = new Lazy<ImageSource>(GetIcon, true);
+
             if (settings != null)
             {
                 TypeName = settings.TypeName;
@@ -34,18 +39,28 @@ namespace AmalgaDrive.Model
                 Password = settings.Password;
             }
 
-            _service = new Lazy<IDriveService>(GetService, true);
-            _icon = new Lazy<ImageSource>(GetIcon, true);
             _onDemandSynchronizer = new Lazy<OnDemandSynchronizer>(GetSynchronizer, true);
-            SyncPeriod = 300;
+            SyncPeriod = settings != null ? settings.SyncPeriod : 300;
         }
 
         public OnDemandSynchronizer OnDemandSynchronizer => _onDemandSynchronizer.Value;
         public string Name { get => DictionaryObjectGetPropertyValue<string>(); set => DictionaryObjectSetPropertyValue(value); }
         public string Login { get => DictionaryObjectGetPropertyValue<string>(); set => DictionaryObjectSetPropertyValue(value); }
         public string BaseUrl { get => DictionaryObjectGetPropertyValue<string>(); set => DictionaryObjectSetPropertyValue(value); }
+        public Uri BaseUri => new Uri(BaseUrl, UriKind.Absolute);
         public SecureString Password { get => DictionaryObjectGetPropertyValue<SecureString>(); set => DictionaryObjectSetPropertyValue(value); }
-        public int SyncPeriod { get => DictionaryObjectGetPropertyValue<int>(); set => DictionaryObjectSetPropertyValue(value); }
+        public bool Synchronizing { get => DictionaryObjectGetPropertyValue<bool>(); set => DictionaryObjectSetPropertyValue(value); }
+        public string SynchronizingText { get => DictionaryObjectGetPropertyValue<string>(); set => DictionaryObjectSetPropertyValue(value); }
+
+        public int SyncPeriod
+        {
+            get => DictionaryObjectGetPropertyValue<int>();
+            set
+            {
+                DictionaryObjectSetPropertyValue(value);
+                _onDemandSynchronizer.Value.SyncPeriod = SyncPeriod;
+            }
+        }
 
         public OnDemandRegistration OnDemandRegistration
         {
@@ -98,7 +113,9 @@ namespace AmalgaDrive.Model
             if (type == null)
                 return null;
 
-            return Activator.CreateInstance(type) as IDriveService;
+            var service = Activator.CreateInstance(type) as IDriveService;
+            service.Initialize(this, null);
+            return service;
         }
 
         private ImageSource GetIcon() => _service.Value.Icon;
@@ -106,7 +123,34 @@ namespace AmalgaDrive.Model
         private OnDemandSynchronizer GetSynchronizer()
         {
             var sync = new OnDemandSynchronizer(RootPath, Service);
+            sync.Synchronizing += OnSynchronizing;
+            sync.SyncPeriod = SyncPeriod;
+            sync.Logger = ((App)Application.Current).Logger;
             return sync;
+        }
+
+        private void OnSynchronizing(object sender, OnDemandSynchronizerEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                switch (e.Type)
+                {
+                    case OnDemandSynchronizerEventType.Synchronizing:
+                        Synchronizing = true;
+                        SynchronizingText = "Synchronizing...";
+                        break;
+
+                    case OnDemandSynchronizerEventType.Synchronized:
+                        Synchronizing = false;
+                        SynchronizingText = "Synchronization paused.";
+                        break;
+
+                    case OnDemandSynchronizerEventType.ChangedTimer:
+                        int dueTime = (int)e.Input["dueTime"];
+                        SynchronizingText = "Next synchronization in " + (dueTime / 1000) + "s.";
+                        break;
+                }
+            });
         }
 
         public override string ToString() => Name;

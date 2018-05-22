@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -28,6 +28,7 @@ namespace AmalgaDrive
         private System.Windows.Forms.NotifyIcon _notifyIcon = new System.Windows.Forms.NotifyIcon();
         private LogsWindow _logs;
         private State _state;
+        private ObservableCollection<DriveService> _driveServices = new ObservableCollection<DriveService>();
 
         public MainWindow()
         {
@@ -56,14 +57,11 @@ namespace AmalgaDrive
 
             _state = new State(this);
             DataContext = _state;
-            ReloadItems();
-        }
+            Drives.ItemsSource = _driveServices;
 
-        private void EnsureOnDemandSynchronizers()
-        {
-            foreach (var setting in Settings.Current.DriveServiceSettings)
+            foreach (var drive in Settings.Current.DriveServiceSettings)
             {
-                OnDemandSynchronizer.EnsureRegistered(setting.Service.RootPath, setting.Service.OnDemandRegistration);
+                _driveServices.Add(new DriveService(drive));
             }
         }
 
@@ -106,10 +104,7 @@ namespace AmalgaDrive
                 _window = window;
             }
 
-            public void Log(TraceLevel level, object value, [CallerMemberName] string methodName = null)
-            {
-                _window.AppendText("[" + level + "]" + methodName + ": " + value);
-            }
+            public void Log(TraceLevel level, object value, [CallerMemberName] string methodName = null) => _window.AppendTrace(level, value, methodName);
         }
 
         private class State : INotifyPropertyChanged
@@ -133,12 +128,13 @@ namespace AmalgaDrive
             }
         }
 
+        public void AppendTrace(TraceLevel level, object value, [CallerMemberName] string methodName = null) => AppendText("[" + level + "]" + methodName + ": " + value);
         public void AppendText() => AppendText(null);
         public void AppendText(string text)
         {
             if (text != null)
             {
-                text = DateTime.Now + "[" + Thread.CurrentThread.ManagedThreadId + "]: " + text;
+                text = DateTime.Now + " [" + Thread.CurrentThread.ManagedThreadId + "]: " + text;
             }
 
             Dispatcher.BeginInvoke(() =>
@@ -150,11 +146,6 @@ namespace AmalgaDrive
                 }
                 _logs.TB.ScrollToEnd();
             });
-        }
-
-        private void ReloadItems()
-        {
-            Drives.ItemsSource = Settings.Current.DriveServiceSettings.Select((s) => s.Service);
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -256,7 +247,7 @@ namespace AmalgaDrive
 
         }
 
-        private void DockPanel_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e) => DragMove();
+        private void DockPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => DragMove();
 
         private void HelpAbout_Click(object sender, RoutedEventArgs e) => this.ShowMessage("Copyright (C) 2017-" + DateTime.Now.Year + " Aelyo Softworks" + Environment.NewLine + "All rights reserved.", UIUtilities.IconSource);
 
@@ -267,7 +258,7 @@ namespace AmalgaDrive
             dlg.Owner = this;
             if (dlg.ShowDialog().GetValueOrDefault())
             {
-                ReloadItems();
+                _driveServices.Add(service);
             }
         }
 
@@ -289,8 +280,8 @@ namespace AmalgaDrive
             if (this.ShowConfirm("Are you sure you want to remove the '" + service.Name + "' service? Note it can take some time if the number of synchronized files is important.") != MessageBoxResult.Yes)
                 return;
 
-            Settings.Current.RemoveDriveService(service.Name);
-            ReloadItems();
+            Settings.Current.RemoveDriveService(service);
+            _driveServices.Remove(service);
         }
 
         private void EditService(DriveService service)
@@ -302,7 +293,7 @@ namespace AmalgaDrive
             dlg.Owner = this;
             if (dlg.ShowDialog().GetValueOrDefault())
             {
-                ReloadItems();
+                // do nothing
             }
         }
 

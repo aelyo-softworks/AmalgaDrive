@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmalgaDrive.Model;
 using AmalgaDrive.Utilities;
 using ShellBoost.Core;
 using ShellBoost.Core.Utilities;
@@ -19,7 +20,7 @@ namespace AmalgaDrive.Configuration
 
         public void Serialize() => Serialize(DefaultConfigurationFilePath);
 
-        public void SetDriveService(DriveServiceSettings driveService)
+        public void SetDriveService(DriveService driveService)
         {
             if (driveService == null)
                 throw new ArgumentNullException(nameof(driveService));
@@ -27,28 +28,28 @@ namespace AmalgaDrive.Configuration
             var existing = _driveServices.FirstOrDefault(s => s.Name.EqualsIgnoreCase(driveService.Name));
             if (existing != null)
             {
-                if (!driveService.CopyTo(existing))
+                if (!existing.CopyFrom(driveService))
                     return;
             }
             else
-
             {
-                _driveServices.Add(driveService);
+                _driveServices.Add(new DriveServiceSettings(driveService));
             }
+
+            OnDemandSynchronizer.EnsureRegistered(driveService.RootPath, driveService.OnDemandRegistration);
             Serialize();
         }
 
-        public bool RemoveDriveService(string driveServiceName)
+        public bool RemoveDriveService(DriveService driveService)
         {
-            if (driveServiceName == null)
-                throw new ArgumentNullException(nameof(driveServiceName));
+            if (driveService == null)
+                throw new ArgumentNullException(nameof(driveService));
 
-            int index = _driveServices.FindIndex(d => d.Name.EqualsIgnoreCase(driveServiceName));
+            int index = _driveServices.FindIndex(d => d.Name.EqualsIgnoreCase(driveService.Name));
             if (index < 0)
                 return false;
 
-            OnDemandSynchronizer.Unregister(_driveServices[index].Service.RootPath, _driveServices[index].Service.OnDemandRegistration);
-
+            OnDemandSynchronizer.Unregister(driveService.RootPath, driveService.OnDemandRegistration);
             _driveServices.RemoveAt(index);
             Serialize();
             return true;

@@ -14,6 +14,28 @@
 
         <BooleanToVisibilityConverter x:Key="btv" />
 
+        <Style x:Key="Rotator" TargetType="{x:Type TextBlock}">
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <RotateTransform Angle="0" CenterX="8" CenterY="8" />
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Rotating, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Value="true">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard Name="Rotate">
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle" From="0" To="360" Duration="0:0:8" RepeatBehavior="Forever" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <RemoveStoryboard BeginStoryboardName="Rotate" />
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="MenuTitle" TargetType="TextBlock">
             <Setter Property="Background" Value="{StaticResource BackColor}" />
             <Setter Property="Foreground" Value="White" />

@@ -9,8 +9,6 @@ namespace AmalgaDrive.Configuration
 {
     public class DriveServiceSettings
     {
-        private Lazy<DriveService> _service;
-
         // for xml serialization
         public DriveServiceSettings()
             : this(null)
@@ -26,16 +24,15 @@ namespace AmalgaDrive.Configuration
                 Login = service.Login;
                 Password = service.Password;
                 BaseUrl = service.BaseUrl;
+                SyncPeriod = service.SyncPeriod;
             }
-            _service = new Lazy<DriveService>(() => new DriveService(this));
         }
 
         public string Name { get; set; }
         public string TypeName { get; set; }
         public string BaseUrl { get; set; }
         public string Login { get; set; }
-        public Uri BaseUri => new Uri(BaseUrl, UriKind.Absolute);
-        public DriveService Service => _service.Value;
+        public int SyncPeriod { get; set; }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [XmlAttribute(AttributeName = "Password")]
@@ -48,33 +45,37 @@ namespace AmalgaDrive.Configuration
 
         public override string ToString() => Name;
 
-        public bool CopyTo(DriveServiceSettings settings)
+        public bool CopyFrom(DriveService service)
         {
-            if (settings == this)
-                return false;
-
             bool changed = false;
-            if (settings.BaseUrl != BaseUrl)
+
+            if (service.SyncPeriod != SyncPeriod)
             {
-                settings.BaseUrl = BaseUrl;
+                SyncPeriod = service.SyncPeriod;
                 changed = true;
             }
 
-            if (settings.Login != Login)
+            if (service.BaseUrl != BaseUrl)
             {
-                settings.Login = Login;
+                BaseUrl = service.BaseUrl;
                 changed = true;
             }
 
-            if (settings.TypeName != TypeName)
+            if (service.Login != Login)
             {
-                settings.TypeName = TypeName;
+                Login = service.Login;
                 changed = true;
             }
 
-            if (!SecurityUtilities.EqualsOrdinal(settings.Password, Password))
+            if (service.TypeName != TypeName)
             {
-                settings.Password = Password;
+                TypeName = service.TypeName;
+                changed = true;
+            }
+
+            if (!SecurityUtilities.EqualsOrdinal(service.Password, Password))
+            {
+                Password = service.Password;
                 changed = true;
             }
             return changed;
