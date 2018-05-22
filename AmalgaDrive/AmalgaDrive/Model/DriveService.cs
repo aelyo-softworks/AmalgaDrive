@@ -52,6 +52,16 @@ namespace AmalgaDrive.Model
         public bool Synchronizing { get => DictionaryObjectGetPropertyValue<bool>(); set => DictionaryObjectSetPropertyValue(value); }
         public string SynchronizingText { get => DictionaryObjectGetPropertyValue<string>(); set => DictionaryObjectSetPropertyValue(value); }
 
+        public void ResetOnDemandSynchronizer()
+        {
+            if (!_onDemandSynchronizer.IsValueCreated)
+                return;
+
+            _onDemandSynchronizer.Value.Synchronizing -= OnSynchronizing;
+            _onDemandSynchronizer.Value.Dispose();
+            _onDemandSynchronizer = new Lazy<OnDemandSynchronizer>(GetSynchronizer, true);
+        }
+
         public int SyncPeriod
         {
             get => DictionaryObjectGetPropertyValue<int>();
@@ -122,6 +132,7 @@ namespace AmalgaDrive.Model
 
         private OnDemandSynchronizer GetSynchronizer()
         {
+            OnDemandSynchronizer.EnsureRegistered(RootPath, OnDemandRegistration);
             var sync = new OnDemandSynchronizer(RootPath, Service);
             sync.Synchronizing += OnSynchronizing;
             sync.SyncPeriod = SyncPeriod;
@@ -135,19 +146,14 @@ namespace AmalgaDrive.Model
             {
                 switch (e.Type)
                 {
-                    case OnDemandSynchronizerEventType.Synchronizing:
+                    case OnDemandSynchronizerEventType.SynchronizingAll:
                         Synchronizing = true;
                         SynchronizingText = "Synchronizing...";
                         break;
 
-                    case OnDemandSynchronizerEventType.Synchronized:
+                    case OnDemandSynchronizerEventType.SynchronizedAll:
                         Synchronizing = false;
                         SynchronizingText = "Synchronization paused.";
-                        break;
-
-                    case OnDemandSynchronizerEventType.ChangedTimer:
-                        int dueTime = (int)e.Input["dueTime"];
-                        SynchronizingText = "Next synchronization in " + (dueTime / 1000) + "s.";
                         break;
                 }
             });

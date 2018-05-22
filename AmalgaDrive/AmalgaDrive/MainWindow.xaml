@@ -22,7 +22,7 @@
                     <MenuItem Header="_Pause Synchronization and Quit" Template="{StaticResource VsMenuSub}" Name="FileExit" Click="FileExit_Click" />
                 </MenuItem>
                 <MenuItem Header="_Tools" Template="{StaticResource VsMenuTop}">
-                    <MenuItem Header="_Settings" Template="{StaticResource VsMenuSub}" Name="ToolsOptions" Click="Options_Click" />
+                    <!--<MenuItem Header="_Settings" Template="{StaticResource VsMenuSub}" Name="ToolsOptions" Click="Options_Click" />-->
                     <MenuItem Header="_Logs" Template="{StaticResource VsMenuSub}" Name="Logs" Click="Logs_Click" />
                     <MenuItem Header="_Restart Explorer" Template="{StaticResource VsMenuSub}" Name="RestartExplorer" Click="RestartExplorer_Click"  />
                     <Separator Template="{StaticResource VsMenuSep}" />
@@ -33,10 +33,10 @@
                 </MenuItem>
             </Menu>
             <DockPanel HorizontalAlignment="Right">
-                <Button Style="{StaticResource BoxButton}" ToolTip="Settings" Name="Options" Margin="5,0,5,0" Click="Options_Click">
+                <!--<Button  Style="{StaticResource BoxButton}" ToolTip="Settings" Name="Options" Margin="5,0,5,0" Click="Options_Click">
                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Settings}" />
                 </Button>
-                <Border Background="White" Width="1" />
+                <Border Background="White" Width="1" />-->
                 <Button Style="{StaticResource BoxButton}" ToolTip="Close" Name="Minimize" Margin="5,0,5,0" Click="Minimize_Click">
                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.WindowMinimize}" />
                 </Button>

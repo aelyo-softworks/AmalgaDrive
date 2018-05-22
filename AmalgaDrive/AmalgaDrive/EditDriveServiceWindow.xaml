@@ -75,6 +75,8 @@
             <Button Name="OkButton" Click="OkButton_Click" IsDefault="True" Style="{StaticResource ActionButton}" Width="75" IsEnabled="{Binding IsValid}">OK</Button>
             <Border Width="10" />
             <Button Name="CancelButton" Click="Close_Click" Style="{StaticResource ActionButton}" Width="75">Cancel</Button>
+            <Border Width="10" />
+            <Button Name="ResetButton" Click="ResetButton_Click" Style="{StaticResource ActionButton}" Width="75" ToolTip="Reset all on-demand files.">Reset</Button>
         </StackPanel>
     </Grid>
 </Window>

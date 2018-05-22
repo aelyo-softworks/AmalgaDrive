@@ -61,7 +61,8 @@ namespace AmalgaDrive
 
             foreach (var drive in Settings.Current.DriveServiceSettings)
             {
-                _driveServices.Add(new DriveService(drive));
+                var ds = new DriveService(drive);
+                _driveServices.Add(ds);
             }
         }
 
@@ -145,7 +146,7 @@ namespace AmalgaDrive
                     _logs.TB.Text += text;
                 }
                 _logs.TB.ScrollToEnd();
-            });
+            }, DispatcherPriority.ApplicationIdle);
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -174,6 +175,12 @@ namespace AmalgaDrive
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
+
+            foreach (var service in _driveServices)
+            {
+                service.ResetOnDemandSynchronizer();
+            }
+
             ShellFolderServer.UnregisterNativeDll(RegistrationMode.User);
             ShellUtilities.RefreshShellViews();
 

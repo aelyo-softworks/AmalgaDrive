@@ -1,11 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using AmalgaDrive.Configuration;
 using AmalgaDrive.Drive;
 using AmalgaDrive.Model;
 using AmalgaDrive.Utilities;
+using ShellBoost.Core;
 
 namespace AmalgaDrive
 {
@@ -68,6 +72,41 @@ namespace AmalgaDrive
             Settings.Current.SetDriveService(Service);
             DialogResult = true;
             Close();
+        }
+
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.ShowConfirm("Are you sure you want to reset the '" + Service.Name + "' service? Note it can take some time if the number of synchronized files is important.") != MessageBoxResult.Yes)
+                return;
+
+            var period = Service.SyncPeriod;
+            Service.SyncPeriod = 0;
+
+            int i = 0;
+            int max = 100;
+            while (Service.OnDemandSynchronizer.IsSynchronizing && i < max)
+            {
+                Thread.Sleep(100);
+                i++;
+            }
+            Service.ResetOnDemandSynchronizer();
+
+            if (i >= max)
+            {
+                this.ShowMessage("The directory is locked for now. Please retry later.");
+                return;
+            }
+
+            OnDemandSynchronizer.Unregister(Service.RootPath, Service.OnDemandRegistration);
+            try
+            {
+                //Directory.Delete(Service.RootPath, true);
+            }
+            catch(Exception ex)
+            {
+                ((App)Application.Current).Log(TraceLevel.Error, "An error occurred trying to delete '" + Service.RootPath  + "' directory: " + ex);
+            }
+            Service.SyncPeriod = period;
         }
     }
 }

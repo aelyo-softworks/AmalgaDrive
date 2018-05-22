@@ -7,12 +7,14 @@
         mc:Ignorable="d"
         Title="Logs" Height="450" Width="800">
     <Grid>
-        <TextBox IsReadOnly="True" Name="TB" FontFamily="Lucida Console" FontSize="10">
-            <TextBox.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Clear" Name="Clear" Click="Clear_Click" />
-                </ContextMenu>
-            </TextBox.ContextMenu>
-        </TextBox>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <TextBox IsReadOnly="True" Name="TB" FontFamily="Lucida Console" FontSize="10">
+                <TextBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Clear" Name="Clear" Click="Clear_Click" />
+                    </ContextMenu>
+                </TextBox.ContextMenu>
+            </TextBox>
+        </ScrollViewer>
     </Grid>
 </Window>
