@@ -28,6 +28,7 @@ namespace AmalgaDrive
         private System.Windows.Forms.NotifyIcon _notifyIcon = new System.Windows.Forms.NotifyIcon();
         private LogsWindow _logs;
         private State _state;
+        private OnDemandShellFolderServer _server;
         private ObservableCollection<DriveService> _driveServices = new ObservableCollection<DriveService>();
 
         public MainWindow()
@@ -72,18 +73,19 @@ namespace AmalgaDrive
             var config = new ShellFolderConfiguration();
             config.Logger = logger;
 
+            ShellFolderServer.RegisterNativeDll(RegistrationMode.User);
+            ShellUtilities.RefreshShellViews();
+
             do
             {
                 try
                 {
-                    ShellFolderServer.RegisterNativeDll(RegistrationMode.User);
-                    ShellUtilities.RefreshShellViews();
-
-                    using (var server = new OnDemandShellFolderServer(new DirectoryInfo(DriveService.AllRootsPath)))
+                    using (_server = new OnDemandShellFolderServer(new DirectoryInfo(DriveService.AllRootsPath)))
                     {
-                        server.Start(config);
+                        _server.Start(config);
                         AppendText("Started listening on proxy id " + ShellFolderServer.ProxyId);
                         _serverStopEvent.WaitOne();
+                        _server = null;
                         return;
                     }
                 }
@@ -248,14 +250,7 @@ namespace AmalgaDrive
         private void Maximize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Maximized;
         private void Minimize_Click(object sender, RoutedEventArgs e) => Close(null, null);
         private void Restore_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Normal;
-
-        private void Options_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void DockPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => DragMove();
-
         private void HelpAbout_Click(object sender, RoutedEventArgs e) => this.ShowMessage("Copyright (C) 2017-" + DateTime.Now.Year + " Aelyo Softworks" + Environment.NewLine + "All rights reserved.", UIUtilities.IconSource);
 
         private void AddDrive_Click(object sender, RoutedEventArgs e)
@@ -310,14 +305,17 @@ namespace AmalgaDrive
 
         private void OpenExtension_Click(object sender, RoutedEventArgs e)
         {
-            var id = ShellFolderServer.LocationFolderId;
-            var kn = KnownFolder.Get(id);
-            var idl = kn.GetIdList(KNOWN_FOLDER_FLAG.KF_FLAG_DEFAULT);
+            var service = UIUtilities.GetDataContext<DriveService>(sender);
+
+            // services are children of the root folder
+            var item = _server?.RootFolder?.ParseItem(service.FileName);
+            if (item == null)
+                return;
 
             dynamic window = new ShellUtilities.ShellBrowserWindow();
             ShellUtilities.CoAllowSetForegroundWindow(window);
             window.Visible = true;
-            window.Navigate2(idl.Data);
+            window.Navigate2(item.IdList.Data);
         }
 
         private void Logs_Click(object sender, RoutedEventArgs e)

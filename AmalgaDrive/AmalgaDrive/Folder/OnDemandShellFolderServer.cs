@@ -6,8 +6,6 @@ namespace AmalgaDrive.Folder
 {
     public class OnDemandShellFolderServer : ShellFolderServer
     {
-        private OnDemandRootFolder _root;
-
         public OnDemandShellFolderServer(DirectoryInfo info)
         {
             if (info == null)
@@ -17,14 +15,15 @@ namespace AmalgaDrive.Folder
         }
 
         public DirectoryInfo Info { get; }
+        public OnDemandRootFolder RootFolder { get; private set; }
 
         protected override RootShellFolder GetRootFolder(ShellItemIdList idl)
         {
-            if (_root == null)
+            if (RootFolder == null)
             {
-                _root = new OnDemandRootFolder(this, idl, Info);
+                RootFolder = new OnDemandRootFolder(this, idl, Info);
             }
-            return _root;
+            return RootFolder;
         }
     }
 }

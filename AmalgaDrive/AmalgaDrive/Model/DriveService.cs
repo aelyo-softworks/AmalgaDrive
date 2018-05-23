@@ -14,7 +14,8 @@ namespace AmalgaDrive.Model
 {
     public class DriveService : DriveObject
     {
-        public static readonly string AllRootsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "AmalgaDrive");
+        public const string AllRootsName = "AmalgaDrive";
+        public static readonly string AllRootsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), AllRootsName);
 
         private Lazy<ImageSource> _icon;
         private Lazy<IDriveService> _service;
@@ -51,6 +52,7 @@ namespace AmalgaDrive.Model
         public SecureString Password { get => DictionaryObjectGetPropertyValue<SecureString>(); set => DictionaryObjectSetPropertyValue(value); }
         public bool Synchronizing { get => DictionaryObjectGetPropertyValue<bool>(); set => DictionaryObjectSetPropertyValue(value); }
         public string SynchronizingText { get => DictionaryObjectGetPropertyValue<string>(); set => DictionaryObjectSetPropertyValue(value); }
+        public string FileName => IOUtilities.PathToValidFileName(Name);
 
         public void ResetOnDemandSynchronizer()
         {
@@ -86,7 +88,7 @@ namespace AmalgaDrive.Model
         {
             get
             {
-                string path = Path.Combine(AllRootsPath, IOUtilities.PathToValidFileName(Name));
+                string path = Path.Combine(AllRootsPath, FileName);
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);

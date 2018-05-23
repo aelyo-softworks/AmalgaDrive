@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using ShellBoost.Core;
+using ShellBoost.Core.WindowsShell;
+using Props = ShellBoost.Core.WindowsPropertySystem;
 
 namespace AmalgaDrive.Folder
 {
@@ -16,6 +18,7 @@ namespace AmalgaDrive.Folder
                 throw new ArgumentNullException(nameof(info));
 
             Server = server;
+            AddColumn(Props.System.StatusIcons, SHCOLSTATE.SHCOLSTATE_ONBYDEFAULT);
         }
 
         public OnDemandShellFolderServer Server { get; }
@@ -27,6 +30,7 @@ namespace AmalgaDrive.Folder
         {
             public OnDemandFolder(ShellFolder parent, DirectoryInfo info) : base(parent, info)
             {
+                AddColumn(Props.System.StatusIcons, SHCOLSTATE.SHCOLSTATE_ONBYDEFAULT);
             }
 
             protected override ShellItem CreateFileSystemFolder(DirectoryInfo info) => new OnDemandFolder(this, info);
