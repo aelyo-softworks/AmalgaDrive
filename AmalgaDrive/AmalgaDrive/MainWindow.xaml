@@ -24,7 +24,9 @@
                 <MenuItem Header="_Tools" Template="{StaticResource VsMenuTop}">
                     <!--<MenuItem Header="_Settings" Template="{StaticResource VsMenuSub}" Name="ToolsOptions" Click="Options_Click" />-->
                     <MenuItem Header="_Logs" Template="{StaticResource VsMenuSub}" Name="Logs" Click="Logs_Click" />
-                    <MenuItem Header="_Restart Explorer" Template="{StaticResource VsMenuSub}" Name="RestartExplorer" Click="RestartExplorer_Click"  />
+                    <Separator Template="{StaticResource VsMenuSep}" />
+                    <MenuItem Header="_Restart Explorer" Template="{StaticResource VsMenuSub}" Name="RestartExplorer" Click="RestartExplorer_Click" />
+                    <MenuItem Header="_Unregister AmalgaDrive" Template="{StaticResource VsMenuSub}" Name="Unregister" Click="Unregister_Click" />
                     <Separator Template="{StaticResource VsMenuSep}" />
                     <MenuItem Header="_Open Configuration Path" Template="{StaticResource VsMenuSub}" Name="OpenConfig" Click="OpenConfig_Click" />
                 </MenuItem>
@@ -87,7 +89,7 @@
                     <GridViewColumn Header="Synchronization State" Width="42">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" Foreground="Green" ToolTip="{Binding SynchronizingText}">
+                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" Name="Synchronize" Click="Synchronize_Click" Foreground="Green" ToolTip="{Binding SynchronizingText}">
                                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Sync}">
                                         <TextBlock.Style>
                                             <Style TargetType="{x:Type TextBlock}">

@@ -49,7 +49,7 @@ namespace AmalgaDrive.Configuration
             if (index < 0)
                 return false;
 
-            OnDemandSynchronizer.Unregister(driveService.RootPath, driveService.OnDemandRegistration);
+            driveService.Unregister();
             _driveServices.RemoveAt(index);
             Serialize();
             return true;

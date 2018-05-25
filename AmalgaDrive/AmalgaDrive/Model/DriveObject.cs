@@ -6,6 +6,9 @@ using AmalgaDrive.Utilities;
 
 namespace AmalgaDrive.Model
 {
+    /// <summary>
+    /// A base MVVM-supporting object.
+    /// </summary>
     public abstract class DriveObject : ChangeTrackingDictionaryObject
     {
         // we want to expose validity publicly

@@ -97,7 +97,7 @@ namespace AmalgaDrive
                 return;
             }
 
-            OnDemandSynchronizer.Unregister(Service.RootPath, Service.OnDemandRegistration);
+            Service.Unregister();
             try
             {
                 //Directory.Delete(Service.RootPath, true);

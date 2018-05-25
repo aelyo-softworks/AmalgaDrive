@@ -16,7 +16,6 @@ using AmalgaDrive.Model;
 using AmalgaDrive.Utilities;
 using ShellBoost.Core;
 using ShellBoost.Core.Utilities;
-using ShellBoost.Core.WindowsShell;
 
 namespace AmalgaDrive
 {
@@ -183,9 +182,6 @@ namespace AmalgaDrive
                 service.ResetOnDemandSynchronizer();
             }
 
-            ShellFolderServer.UnregisterNativeDll(RegistrationMode.User);
-            ShellUtilities.RefreshShellViews();
-
             if (_serverStopEvent != null)
             {
                 _serverStopEvent.Set();
@@ -261,6 +257,7 @@ namespace AmalgaDrive
             if (dlg.ShowDialog().GetValueOrDefault())
             {
                 _driveServices.Add(service);
+                service.SyncPeriod = service.SyncPeriod;// force start
             }
         }
 
@@ -282,7 +279,14 @@ namespace AmalgaDrive
             if (this.ShowConfirm("Are you sure you want to remove the '" + service.Name + "' service? Note it can take some time if the number of synchronized files is important.") != MessageBoxResult.Yes)
                 return;
 
-            Settings.Current.RemoveDriveService(service);
+            try
+            {
+                Settings.Current.RemoveDriveService(service);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                this.ShowError("Unauthorized Access. You need to close and restart this program as an administrator to delete this service.");
+            }
             _driveServices.Remove(service);
         }
 
@@ -341,6 +345,26 @@ namespace AmalgaDrive
                 }, false, out Exception error);
                 AppendText("Windows Explorer was restarted...");
             });
+        }
+
+        private void Unregister_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.ShowConfirm("Are you sure you want to unregister AmalgaDrive? It you run it again it will re-register itself. Note unregistration can take some time if the number of synchronized files is important.") != MessageBoxResult.Yes)
+                return;
+
+            foreach (var drive in _driveServices)
+            {
+                drive.ResetOnDemandSynchronizer();
+            }
+            ShellFolderServer.UnregisterNativeDll(RegistrationMode.User);
+            ShellUtilities.RefreshShellViews();
+        }
+
+        private void Synchronize_Click(object sender, RoutedEventArgs e)
+        {
+            var service = UIUtilities.GetDataContext<DriveService>(sender);
+            service.OnDemandSynchronizer.AddSyncPath(string.Empty); // add root
+            service.OnDemandSynchronizer.SynchronizeAll();
         }
     }
 }

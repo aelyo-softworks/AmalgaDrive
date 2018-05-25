@@ -12,9 +12,19 @@ using ShellBoost.Core.Utilities;
 
 namespace AmalgaDrive.Model
 {
+    /// <summary>
+    /// The DriveService class is the model for a remote drive, used in WPF's MVVM.
+    /// </summary>
+    /// <seealso cref="AmalgaDrive.Model.DriveObject" />
     public class DriveService : DriveObject
     {
+        /// <summary>
+        /// All drives root directory name
+        /// </summary>
         public const string AllRootsName = "AmalgaDrive";
+        /// <summary>
+        /// All drives root full directory path.
+        /// </summary>
         public static readonly string AllRootsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), AllRootsName);
 
         private Lazy<ImageSource> _icon;
@@ -54,6 +64,12 @@ namespace AmalgaDrive.Model
         public string SynchronizingText { get => DictionaryObjectGetPropertyValue<string>(); set => DictionaryObjectSetPropertyValue(value); }
         public string FileName => IOUtilities.PathToValidFileName(Name);
 
+        public void Unregister()
+        {
+            ResetOnDemandSynchronizer();
+            OnDemandSynchronizer.Unregister(RootPath, OnDemandRegistration);
+        }
+
         public void ResetOnDemandSynchronizer()
         {
             if (!_onDemandSynchronizer.IsValueCreated)
@@ -70,7 +86,10 @@ namespace AmalgaDrive.Model
             set
             {
                 DictionaryObjectSetPropertyValue(value);
-                _onDemandSynchronizer.Value.SyncPeriod = SyncPeriod;
+                if (Name != null)
+                {
+                    _onDemandSynchronizer.Value.SyncPeriod = SyncPeriod;
+                }
             }
         }
 
@@ -142,6 +161,7 @@ namespace AmalgaDrive.Model
             return sync;
         }
 
+        // this is used to change the green sync icon dynamically
         private void OnSynchronizing(object sender, OnDemandSynchronizerEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke(() =>
