@@ -50,7 +50,7 @@ namespace AmalgaDrive.Folder
         /// <returns><c>true</c> if the value was read, <c>false</c> otherwise.</returns>
         public override bool TryGetPropertyValue(PropertyKey key, out object value)
         {
-            // this properties is asked by the Shell to display the sync status icon
+            // this property is asked by the Shell to display the sync status icon
             if (key == Props.System.StorageProviderUIStatus)
             {
                 value = GetSyncState(this);
