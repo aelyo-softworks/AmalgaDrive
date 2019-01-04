@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyDescription("A Windows Shell Extension that amalgamates various Cloud drives.")]
 [assembly: AssemblyCompany("Aelyo Softworks")]
 [assembly: AssemblyProduct("Amalga Drive")]
-[assembly: AssemblyCopyright("Copyright (C) 2017-2018 Aelyo Softworks. All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright (C) 2017-2019 Aelyo Softworks. All rights reserved.")]
 [assembly: AssemblyTrademark("AmalgaDrive (TM) is a trademark of Aelyo Softworks.")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
