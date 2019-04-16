@@ -925,7 +925,6 @@
             Gets the value.
             </summary>
             <value>The value.</value>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">SHB0007: Unknown ShellItemId type " + ((int)Type) + ".</exception>
         </member>
         <member name="M:ShellBoost.Core.KeyShellItemId.From(System.Byte[])">
             <summary>
@@ -941,11 +940,6 @@
             <param name="data">The data.</param>
             <param name="throwOnError">if set to <c>true</c> errors may be thrown otherwise the return value may be null.</param>
             <returns>An instance of the KeyShellItemId class.</returns>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">
-            SHB0005: Unknown ShellItemId.
-            or
-            SHB0006: Unknown ShellItemId type " + ((int)type) + ".
-            </exception>
         </member>
         <member name="M:ShellBoost.Core.KeyShellItemId.Build(ShellBoost.Core.KeyShellItemIdType,System.Byte[])">
             <summary>
@@ -3851,21 +3845,18 @@
             Gets a value indicating whether license has expired.
             </summary>
             <value><c>true</c> if license has expired; otherwise, <c>false</c>.</value>
-            <exception cref="T:System.InvalidOperationException">License Data is invalid.</exception>
         </member>
         <member name="P:ShellBoost.Core.ShellFolderServer.LicenseRegisteredCompany">
             <summary>
             Gets the license registered company
             </summary>
             <value>The license registered company.</value>
-            <exception cref="T:System.InvalidOperationException">License Data is invalid.</exception>
         </member>
         <member name="P:ShellBoost.Core.ShellFolderServer.LicenseExpirationDate">
             <summary>
             Gets the license expiration date.
             </summary>
             <value>The license expiration date.</value>
-            <exception cref="T:System.InvalidOperationException">License Data is invalid.</exception>
         </member>
         <member name="P:ShellBoost.Core.ShellFolderServer.Configuration">
             <summary>
@@ -4059,14 +4050,28 @@
             <param name="idl">The folder PIDL.</param>
             <returns>An instance of the ShellFolder or null if it was not found.</returns>
             <exception cref="T:System.ArgumentNullException">idl is null.</exception>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">SHB0012: Shell folder type '" + GetType().FullName + "' has returned a null root shell folder.</exception>
         </member>
         <member name="M:ShellBoost.Core.ShellFolderServer.GetItem(ShellBoost.Core.ShellItemIdList)">
             <summary>
             Gets a Shell Item using its PIDL.
             </summary>
-            <param name="idl">The PIDL.</param>
-            <returns>An instance of the ShellItem instance or null if it was not found..</returns>
+            <param name="idl">The item's PIDL.</param>
+            <returns>An instance of the ShellItem instance or null if it was not found.</returns>
+            <exception cref="T:System.ArgumentNullException">idl is null.</exception>
+        </member>
+        <member name="M:ShellBoost.Core.ShellFolderServer.AddToCache(ShellBoost.Core.ShellItem)">
+            <summary>
+            Adds a Shell Item to the cache.
+            </summary>
+            <param name="item">The item.</param>
+            <exception cref="T:System.ArgumentNullException">item is null.</exception>
+        </member>
+        <member name="M:ShellBoost.Core.ShellFolderServer.GetFromCache(ShellBoost.Core.ShellItemIdList)">
+            <summary>
+            Gets a Shell Item from the cache using its PIDL.
+            </summary>
+            <param name="idl">The item's PIDL.</param>
+            <returns>Gets a ShellItem instance that was cached or null if it was not cached.</returns>
             <exception cref="T:System.ArgumentNullException">idl is null.</exception>
         </member>
         <member name="M:ShellBoost.Core.ShellFolderServer.LogInfo(System.Object,System.String)">
@@ -5053,7 +5058,6 @@
             </summary>
             <param name="size">The data size.</param>
             <returns>A checked size</returns>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">SHB0004: ShellItemId size (" + size + ") over limit (" + ushort.MaxValue + ").</exception>
         </member>
         <member name="M:ShellBoost.Core.ShellItemId.FromFileSystem(System.IO.FileSystemInfo)">
             <summary>
@@ -5189,11 +5193,11 @@
             </summary>
             <value>The last identifier.</value>
         </member>
-        <member name="P:ShellBoost.Core.ShellItemIdList.IsRoot">
+        <member name="P:ShellBoost.Core.ShellItemIdList.IsTerminator">
             <summary>
-            Gets a value indicating whether this instance represents the root folder.
+            Gets a value indicating whether this instance contains only the terminator.
             </summary>
-            <value><c>true</c> if this instance is root; otherwise, <c>false</c>.</value>
+            <value><c>true</c> if this instance contains only the terminator; otherwise, <c>false</c>.</value>
         </member>
         <member name="P:ShellBoost.Core.ShellItemIdList.DebugString">
             <summary>
@@ -5212,13 +5216,6 @@
             Gets the PIDLs' data.
             </summary>
             <value>The data.</value>
-        </member>
-        <member name="P:ShellBoost.Core.ShellItemIdList.Root">
-            <summary>
-            Gets the root folder PIDL.
-            The root folder is the closest parent that is not handled by ShellBoost.
-            </summary>
-            <value>The root folder PIDL.</value>
         </member>
         <member name="M:ShellBoost.Core.ShellItemIdList.ClearCache">
             <summary>
@@ -6118,6 +6115,167 @@
             <param name="filePath">The file path.</param>
             <returns>A timestamp.</returns>
             <exception cref="T:System.ArgumentNullException">filePath is null.</exception>
+        </member>
+        <member name="T:ShellBoost.Core.Utilities.ChunkedMemoryStream">
+            <summary>
+            Defines a MemoryStream that does not sit on the Large Object Heap, thus avoiding memory fragmentation.
+            </summary>
+        </member>
+        <member name="F:ShellBoost.Core.Utilities.ChunkedMemoryStream.DefaultChunkSize">
+            <summary>
+            Defines the default chunk size. Currently defined as 0x10000.
+            </summary>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:ShellBoost.Core.Utilities.ChunkedMemoryStream"/> class.
+            </summary>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ShellBoost.Core.Utilities.ChunkedMemoryStream"/> class.
+            </summary>
+            <param name="chunkSize">Size of the underlying chunks.</param>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.#ctor(System.Byte[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:ShellBoost.Core.Utilities.ChunkedMemoryStream"/> class based on the specified byte array.
+            </summary>
+            <param name="buffer">The array of unsigned bytes from which to create the current stream.</param>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.#ctor(System.Int32,System.Byte[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:ShellBoost.Core.Utilities.ChunkedMemoryStream"/> class based on the specified byte array.
+            </summary>
+            <param name="chunkSize">Size of the underlying chunks.</param>
+            <param name="buffer">The array of unsigned bytes from which to create the current stream.</param>
+        </member>
+        <member name="P:ShellBoost.Core.Utilities.ChunkedMemoryStream.FreeOnDispose">
+            <summary>
+            Gets or sets a value indicating whether to free the underlying chunks on dispose.
+            </summary>
+            <value><c>true</c> if free on dispose; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.Dispose(System.Boolean)">
+            <summary>
+            Releases the unmanaged resources used by the <see cref="T:System.IO.Stream"/> and optionally releases the managed resources.
+            </summary>
+            <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.Flush">
+            <summary>
+            When overridden in a derived class, clears all buffers for this stream and causes any buffered data to be written to the underlying device.
+            This implementation does nothing.
+            </summary>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            When overridden in a derived class, reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
+            </summary>
+            <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset"/> and (<paramref name="offset"/> + <paramref name="count"/> - 1) replaced by the bytes read from the current source.</param>
+            <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the data read from the current stream.</param>
+            <param name="count">The maximum number of bytes to be read from the current stream.</param>
+            <returns>
+            The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
+            </returns>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.ReadByte">
+            <summary>
+            Reads a byte from the stream and advances the position within the stream by one byte, or returns -1 if at the end of the stream.
+            </summary>
+            <returns>
+            The unsigned byte cast to an Int32, or -1 if at the end of the stream.
+            </returns>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.Seek(System.Int64,System.IO.SeekOrigin)">
+            <summary>
+            When overridden in a derived class, sets the position within the current stream.
+            </summary>
+            <param name="offset">A byte offset relative to the <paramref name="origin"/> parameter.</param>
+            <param name="origin">A value of type <see cref="T:System.IO.SeekOrigin"/> indicating the reference point used to obtain the new position.</param>
+            <returns>
+            The new position within the current stream.
+            </returns>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.SetLength(System.Int64)">
+            <summary>
+            When overridden in a derived class, sets the length of the current stream.
+            </summary>
+            <param name="value">The desired length of the current stream in bytes.</param>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.ToArray">
+            <summary>
+            Converts the current stream to a byte array.
+            </summary>
+            <returns>An array of bytes</returns>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            When overridden in a derived class, writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
+            </summary>
+            <param name="buffer">An array of bytes. This method copies <paramref name="count"/> bytes from <paramref name="buffer"/> to the current stream.</param>
+            <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
+            <param name="count">The number of bytes to be written to the current stream.</param>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.WriteByte(System.Byte)">
+            <summary>
+            Writes a byte to the current position in the stream and advances the position within the stream by one byte.
+            </summary>
+            <param name="value">The byte to write to the stream.</param>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ChunkedMemoryStream.WriteTo(System.IO.Stream)">
+            <summary>
+            Writes to the specified stream.
+            </summary>
+            <param name="stream">The stream.</param>
+        </member>
+        <member name="P:ShellBoost.Core.Utilities.ChunkedMemoryStream.CanRead">
+            <summary>
+            When overridden in a derived class, gets a value indicating whether the current stream supports reading.
+            </summary>
+            <value></value>
+            <returns>true if the stream supports reading; otherwise, false.
+            </returns>
+        </member>
+        <member name="P:ShellBoost.Core.Utilities.ChunkedMemoryStream.CanSeek">
+            <summary>
+            When overridden in a derived class, gets a value indicating whether the current stream supports seeking.
+            </summary>
+            <value></value>
+            <returns>true if the stream supports seeking; otherwise, false.
+            </returns>
+        </member>
+        <member name="P:ShellBoost.Core.Utilities.ChunkedMemoryStream.CanWrite">
+            <summary>
+            When overridden in a derived class, gets a value indicating whether the current stream supports writing.
+            </summary>
+            <value></value>
+            <returns>true if the stream supports writing; otherwise, false.
+            </returns>
+        </member>
+        <member name="P:ShellBoost.Core.Utilities.ChunkedMemoryStream.Length">
+            <summary>
+            When overridden in a derived class, gets the length in bytes of the stream.
+            </summary>
+            <value></value>
+            <returns>
+            A long value representing the length of the stream in bytes.
+            </returns>
+        </member>
+        <member name="P:ShellBoost.Core.Utilities.ChunkedMemoryStream.ChunkSize">
+            <summary>
+            Gets or sets the size of the underlying chunks. Cannot be greater than or equal to 85000.
+            </summary>
+            <value>The chunks size.</value>
+        </member>
+        <member name="P:ShellBoost.Core.Utilities.ChunkedMemoryStream.Position">
+            <summary>
+            When overridden in a derived class, gets or sets the position within the current stream.
+            </summary>
+            <value></value>
+            <returns>
+            The current position within the stream.
+            </returns>
         </member>
         <member name="T:ShellBoost.Core.Utilities.CommandLine">
             <summary>
@@ -7083,7 +7241,6 @@
             Initializes a new instance of the <see cref="T:ShellBoost.Core.Utilities.FileOperation"/> class.
             </summary>
             <param name="enableEvents">if set to <c>true</c> events are enabled.</param>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">SHB0023: Thread must be STA to be able to execute this code.</exception>
         </member>
         <member name="M:ShellBoost.Core.Utilities.FileOperation.SetProperties(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{ShellBoost.Core.WindowsPropertySystem.PropertyKey,System.Object}})">
             <summary>
@@ -7954,7 +8111,6 @@
             </summary>
             <param name="name">The icon name.</param>
             <returns>An Icon instance.</returns>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">SHB0017: Cannot find stream '" + name + "' in assembly '" + assembly.FullName + "'.</exception>
         </member>
         <member name="M:ShellBoost.Core.Utilities.ImageUtilities.ExtractIcon(System.Reflection.Assembly,System.String)">
             <summary>
@@ -7963,7 +8119,6 @@
             <param name="assembly">The assembly.</param>
             <param name="name">The icon name.</param>
             <returns>An Icon instance.</returns>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">SHB0017: Cannot find stream '" + name + "' in assembly '" + assembly.FullName + "'.</exception>
         </member>
         <member name="M:ShellBoost.Core.Utilities.ImageUtilities.ResizeImageByHeight(System.Drawing.Image,System.Int32)">
             <summary>
@@ -8139,7 +8294,6 @@
             <exception cref="T:System.ArgumentNullException">name is null
             or
             directoryPath is null.</exception>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">SHB0018: Cannot find stream '" + name + "' in assembly '" + assembly.FullName + "'.</exception>
         </member>
         <member name="M:ShellBoost.Core.Utilities.IOUtilities.ExtractAssemblyResource(System.Reflection.Assembly,System.String,System.String,System.Boolean)">
             <summary>
@@ -8153,7 +8307,6 @@
             <exception cref="T:System.ArgumentNullException">name is null
             or
             directoryPath is null.</exception>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">SHB0018: Cannot find stream '" + name + "' in assembly '" + assembly.FullName + "'.</exception>
         </member>
         <member name="M:ShellBoost.Core.Utilities.IOUtilities.FileCreateDirectory(System.String)">
             <summary>
@@ -8227,7 +8380,7 @@
         </member>
         <member name="M:ShellBoost.Core.Utilities.IOUtilities.FileExists(System.String)">
             <summary>
-            Test if a file exists. Supports invalid file paths, never throw.
+            Test if a file exists. Supports invalid file paths, never throws.
             </summary>
             <param name="path">The path.</param>
             <returns><c>true</c> if the path is valid and the file exists, <c>false</c> otherwise.</returns>
@@ -9335,16 +9488,9 @@
         <member name="M:ShellBoost.Core.Utilities.ShellUtilities.GetPath(ShellBoost.Core.ShellItemIdList)">
             <summary>
             Gets the path of a PIDL.
+            Please make sure you're not calling this function indirectly from a shell call that would require one of your Shell Items's name otherwise, you could create a loop between the shell and your .NET server.
             </summary>
             <param name="idl">The PIDL.</param>
-            <returns>A path or null if the path cannot be determined.</returns>
-        </member>
-        <member name="M:ShellBoost.Core.Utilities.ShellUtilities.GetPath(ShellBoost.Core.ShellItemIdList,System.Boolean)">
-            <summary>
-            Gets the path of a PIDL.
-            </summary>
-            <param name="idl">The PIDL.</param>
-            <param name="checkRoot">if set to <c>true</c> check PIDL root.</param>
             <returns>A path or null if the path cannot be determined.</returns>
         </member>
         <member name="M:ShellBoost.Core.Utilities.ShellUtilities.GetFileSystemPath(ShellBoost.Core.ShellItemIdList)">
@@ -9357,18 +9503,10 @@
         <member name="M:ShellBoost.Core.Utilities.ShellUtilities.GetName(ShellBoost.Core.ShellItemIdList,ShellBoost.Core.WindowsShell.SIGDN)">
             <summary>
             Gets the name of a shell item from its PIDL.
+            Please make sure you're not calling this function indirectly from a shell call that would require one of your Shell Items's name otherwise, you could create a loop between the shell and your .NET server.
             </summary>
             <param name="idl">The PIDL.</param>
             <param name="designName">The type of name.</param>
-            <returns>The item name or null if there was an error.</returns>
-        </member>
-        <member name="M:ShellBoost.Core.Utilities.ShellUtilities.GetName(ShellBoost.Core.ShellItemIdList,ShellBoost.Core.WindowsShell.SIGDN,System.Boolean)">
-            <summary>
-            Gets the name of a shell item from its PIDL.
-            </summary>
-            <param name="idl">The PIDL.</param>
-            <param name="designName">The type of name.</param>
-            <param name="checkRoot">if set to <c>true</c> check PIDL root.</param>
             <returns>The item name or null if there was an error.</returns>
         </member>
         <member name="M:ShellBoost.Core.Utilities.ShellUtilities.RefreshShellViews">
@@ -12398,7 +12536,7 @@
             <summary>
             Gets the corresponding CLR type.
             </summary>
-            <value>The corresponding CLR type..</value>
+            <value>The corresponding CLR type.</value>
         </member>
         <member name="P:ShellBoost.Core.WindowsPropertySystem.PropertyDescription.ColumnState">
             <summary>
@@ -12428,7 +12566,7 @@
             <summary>
             Gets the relative description type.
             </summary>
-            <value>The relative description type..</value>
+            <value>The relative description type.</value>
         </member>
         <member name="P:ShellBoost.Core.WindowsPropertySystem.PropertyDescription.SortDescription">
             <summary>
@@ -26544,7 +26682,6 @@
             <param name="throwOnError">if set to <c>true</c> Windows error may be thrown.</param>
             <returns>An instance of the PropertyDescription type or null if an error occurred.</returns>
             <exception cref="T:System.ArgumentNullException">canonicalName is null.</exception>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">SHB0016: Cannot find property with key '" + propertyKey + "'. If this belongs to you, please make sure you have registered the corresponding .propdesc property schema.</exception>
         </member>
         <member name="M:ShellBoost.Core.WindowsPropertySystem.PropertySystem.GetPropertyDescription(ShellBoost.Core.WindowsPropertySystem.PropertyKey,System.Boolean)">
             <summary>
@@ -26553,7 +26690,6 @@
             <param name="propertyKey">The property key.</param>
             <param name="throwOnError">if set to <c>true</c> Windows error may be thrown.</param>
             <returns>An instance of the PropertyDescription type or null if an error occurred.</returns>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">SHB0016: Cannot find property with key '" + propertyKey + "'. If this belongs to you, please make sure you have registered the corresponding .propdesc property schema.</exception>
         </member>
         <member name="M:ShellBoost.Core.WindowsPropertySystem.PropertySystem.GetPathProperties(System.String)">
             <summary>
@@ -26889,7 +27025,6 @@
             Initializes a new instance of the <see cref="T:ShellBoost.Core.WindowsPropertySystem.PropVariant"/> class with a value.
             </summary>
             <param name="value">The value to store in the PropVariant.</param>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">SHB0008: Value of type '" + value.GetType().FullName + "' is not supported.</exception>
         </member>
         <member name="P:ShellBoost.Core.WindowsPropertySystem.PropVariant.VarType">
             <summary>
@@ -26903,7 +27038,6 @@
             Gets the value.
             </summary>
             <value>The value.</value>
-            <exception cref="T:ShellBoost.Core.ShellBoostException">SHB0009: Value of property type " + _vt + " is not supported.</exception>
         </member>
         <member name="M:ShellBoost.Core.WindowsPropertySystem.PropVariant.Dispose">
             <summary>

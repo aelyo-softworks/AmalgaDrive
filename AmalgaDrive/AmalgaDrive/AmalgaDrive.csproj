@@ -142,6 +142,9 @@
   <ItemGroup>
     <Resource Include="ShellBoost.Core.xml" />
     <Resource Include="AmalgaDrive.ico" />
+    <Content Include="ShellBoost.2bb5a26426454ebe9c63e3c193b897cc.ARM64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ShellBoost.2bb5a26426454ebe9c63e3c193b897cc.x64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
