@@ -914,6 +914,12 @@
             </summary>
             <param name="data">The SHITEMID data, excluding the header.</param>
         </member>
+        <member name="P:ShellBoost.Core.KeyShellItemId.IsKnown">
+            <summary>
+            Gets a value indicating whether this instance is known by the current Shell Folder Server.
+            </summary>
+            <value><c>true</c> if this instance is known by the current Shell Folder Server; otherwise, <c>false</c>.</value>
+        </member>
         <member name="P:ShellBoost.Core.KeyShellItemId.Type">
             <summary>
             Gets the key type.
@@ -932,6 +938,13 @@
             </summary>
             <param name="data">The data.</param>
             <returns>An instance of the KeyShellItemId class.</returns>
+        </member>
+        <member name="M:ShellBoost.Core.KeyShellItemId.IsValid(System.Byte[])">
+            <summary>
+            Determines if data represents a valid KeyShellItemId header.
+            </summary>
+            <param name="data">The data</param>
+            <returns><c>true</c> if data represents a valid KeyShellItemId header; otherwise, <c>false</c>.</returns>
         </member>
         <member name="M:ShellBoost.Core.KeyShellItemId.From(System.Byte[],System.Boolean)">
             <summary>
@@ -4987,6 +5000,12 @@
             </summary>
             <value>The payload.</value>
         </member>
+        <member name="P:ShellBoost.Core.ShellItemId.IsKnown">
+            <summary>
+            Gets a value indicating whether this instance is known by the current Shell Folder Server.
+            </summary>
+            <value><c>true</c> if this instance is known by the current Shell Folder Server; otherwise, <c>false</c>.</value>
+        </member>
         <member name="M:ShellBoost.Core.ShellItemId.Equals(System.Object)">
             <summary>
             Determines whether the specified <see cref="T:System.Object" /> is equal to this instance.
@@ -5221,6 +5240,12 @@
             <summary>
             Clears the cache.
             </summary>
+        </member>
+        <member name="P:ShellBoost.Core.ShellItemIdList.ContainsKnownId">
+            <summary>
+            Gets a value indicating whether this instance contains at least one id known by the current Shell Folder Server.
+            </summary>
+            <value><c>true</c> if this instance contains at least one id known by the current Shell Folder Server; otherwise, <c>false</c>.</value>
         </member>
         <member name="M:ShellBoost.Core.ShellItemIdList.GetFileSystemPath">
             <summary>
@@ -6233,34 +6258,25 @@
             <summary>
             When overridden in a derived class, gets a value indicating whether the current stream supports reading.
             </summary>
-            <value></value>
-            <returns>true if the stream supports reading; otherwise, false.
-            </returns>
+            <value>true if the stream supports reading; otherwise, false.</value>
         </member>
         <member name="P:ShellBoost.Core.Utilities.ChunkedMemoryStream.CanSeek">
             <summary>
             When overridden in a derived class, gets a value indicating whether the current stream supports seeking.
             </summary>
-            <value></value>
-            <returns>true if the stream supports seeking; otherwise, false.
-            </returns>
+            <value>true if the stream supports seeking; otherwise, false.</value>
         </member>
         <member name="P:ShellBoost.Core.Utilities.ChunkedMemoryStream.CanWrite">
             <summary>
             When overridden in a derived class, gets a value indicating whether the current stream supports writing.
             </summary>
-            <value></value>
-            <returns>true if the stream supports writing; otherwise, false.
-            </returns>
+            <value>true if the stream supports writing; otherwise, false.</value>
         </member>
         <member name="P:ShellBoost.Core.Utilities.ChunkedMemoryStream.Length">
             <summary>
             When overridden in a derived class, gets the length in bytes of the stream.
             </summary>
-            <value></value>
-            <returns>
-            A long value representing the length of the stream in bytes.
-            </returns>
+            <value>A long value representing the length of the stream in bytes.</value>
         </member>
         <member name="P:ShellBoost.Core.Utilities.ChunkedMemoryStream.ChunkSize">
             <summary>
@@ -6272,10 +6288,7 @@
             <summary>
             When overridden in a derived class, gets or sets the position within the current stream.
             </summary>
-            <value></value>
-            <returns>
-            The current position within the stream.
-            </returns>
+            <value>The current position within the stream.</value>
         </member>
         <member name="T:ShellBoost.Core.Utilities.CommandLine">
             <summary>
@@ -9424,14 +9437,6 @@
             <param name="flags">The flags.</param>
             <returns>The perceived type.</returns>
         </member>
-        <member name="M:ShellBoost.Core.Utilities.ShellUtilities.GetIdList(System.String)">
-            <summary>
-            Gets the PIDL from a path.
-            </summary>
-            <param name="path">The path.</param>
-            <returns>An instance of the ShellItemIdList type.</returns>
-            <exception cref="T:System.ArgumentNullException">path is null.</exception>
-        </member>
         <member name="M:ShellBoost.Core.Utilities.ShellUtilities.GetIdList(System.String,System.Boolean)">
             <summary>
             Gets the PIDL from a path.
@@ -9451,14 +9456,6 @@
             <returns>An instance of the ShellItemIdList type.</returns>
             <exception cref="T:System.ArgumentNullException">path is null.</exception>
         </member>
-        <member name="M:ShellBoost.Core.Utilities.ShellUtilities.EnumerateItems(System.String)">
-            <summary>
-            Enumerates child items of a given shell item.
-            </summary>
-            <param name="path">The parent path.</param>
-            <returns>A list of child PIDLs.</returns>
-            <exception cref="T:System.ArgumentNullException">path is null.</exception>
-        </member>
         <member name="M:ShellBoost.Core.Utilities.ShellUtilities.EnumerateItems(System.String,System.Boolean)">
             <summary>
             Enumerates child items of a given shell item.
@@ -9467,14 +9464,6 @@
             <param name="throwOnError">if set to <c>true</c> errors may be throw in case of Windows Shell errors.</param>
             <returns>A list of child PIDLs.</returns>
             <exception cref="T:System.ArgumentNullException">path is null.</exception>
-        </member>
-        <member name="M:ShellBoost.Core.Utilities.ShellUtilities.EnumerateItems(ShellBoost.Core.ShellItemIdList)">
-            <summary>
-            Enumerates child items of a given shell item.
-            </summary>
-            <param name="idl">The parent PIDL.</param>
-            <returns>A list of child PIDLs.</returns>
-            <exception cref="T:System.ArgumentNullException">idl is null.</exception>
         </member>
         <member name="M:ShellBoost.Core.Utilities.ShellUtilities.EnumerateItems(ShellBoost.Core.ShellItemIdList,System.Boolean)">
             <summary>
@@ -9488,7 +9477,6 @@
         <member name="M:ShellBoost.Core.Utilities.ShellUtilities.GetPath(ShellBoost.Core.ShellItemIdList)">
             <summary>
             Gets the path of a PIDL.
-            Please make sure you're not calling this function indirectly from a shell call that would require one of your Shell Items's name otherwise, you could create a loop between the shell and your .NET server.
             </summary>
             <param name="idl">The PIDL.</param>
             <returns>A path or null if the path cannot be determined.</returns>
@@ -9503,7 +9491,6 @@
         <member name="M:ShellBoost.Core.Utilities.ShellUtilities.GetName(ShellBoost.Core.ShellItemIdList,ShellBoost.Core.WindowsShell.SIGDN)">
             <summary>
             Gets the name of a shell item from its PIDL.
-            Please make sure you're not calling this function indirectly from a shell call that would require one of your Shell Items's name otherwise, you could create a loop between the shell and your .NET server.
             </summary>
             <param name="idl">The PIDL.</param>
             <param name="designName">The type of name.</param>
