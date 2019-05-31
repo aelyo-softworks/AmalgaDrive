@@ -1,4 +1,7 @@
-﻿using System;
+﻿using AmalgaDrive.Model;
+using ShellBoost.Core;
+using ShellBoost.Core.Utilities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -6,14 +9,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security;
 using System.Text;
 using System.Windows.Media;
 using System.Xml;
-using AmalgaDrive.Configuration;
-using AmalgaDrive.Model;
-using ShellBoost.Core;
-using ShellBoost.Core.Utilities;
 
 namespace AmalgaDrive.Drive.Dav
 {
