@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
 	  <Authors>Aelyo Softworks development team</Authors>
 	  <Company>Aelyo Softworks</Company>
 	  <Product>AmalgaDrive</Product>
-	  <Copyright>Copyright (C) 2017-2018 Aelyo Softworks.</Copyright>
+	  <Copyright>Copyright (C) 2017-2019 Aelyo Softworks.</Copyright>
 	  <Version>1.0.0.0</Version>
 	  <NeutralLanguage />
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.5" />
+	  <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
