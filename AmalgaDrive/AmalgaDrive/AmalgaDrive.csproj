@@ -156,6 +156,8 @@
   <ItemGroup>
     <Resource Include="Resources\materialdesignicons-webfont.ttf" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include=".editorconfig" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

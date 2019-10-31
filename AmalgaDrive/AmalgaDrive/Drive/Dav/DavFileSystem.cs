@@ -1,7 +1,4 @@
-﻿using AmalgaDrive.Model;
-using ShellBoost.Core;
-using ShellBoost.Core.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -12,6 +9,9 @@ using System.Net;
 using System.Text;
 using System.Windows.Media;
 using System.Xml;
+using AmalgaDrive.Model;
+using ShellBoost.Core;
+using ShellBoost.Core.Utilities;
 
 namespace AmalgaDrive.Drive.Dav
 {
@@ -205,18 +205,24 @@ namespace AmalgaDrive.Drive.Dav
                 {
                     using (var stream = client.OpenRead(uri))
                     {
-                        // note: we don't use range as not all servers support this, we that would be an optimization
+                        // note: we don't use range as not all servers support this, but that would be an optimization
+
+                        // skip [offset] bytes
                         while (offset > 0)
                         {
                             int read = stream.Read(buffer, 0, (int)Math.Min(buffer.Length, offset));
                             offset -= read;
                         }
 
+                        // read & write [count] bytes
                         while (count > 0)
                         {
                             int read = stream.Read(buffer, 0, (int)Math.Min(buffer.Length, count));
                             count -= read;
-                            output.Write(buffer, 0, read);
+                            if (read > 0)
+                            {
+                                output.Write(buffer, 0, read);
+                            }
                         }
                     }
                 }

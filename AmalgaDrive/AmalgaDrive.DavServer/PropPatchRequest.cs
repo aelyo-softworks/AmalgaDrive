@@ -31,7 +31,6 @@ namespace AmalgaDrive.DavServer
                 throw new ArgumentNullException(nameof(info));
 
             DateTime dt;
-            int i;
             foreach (var propNode in Document.SelectNodes(DavServerExtensions.DavNamespacePrefix + ":propertyupdate/" + DavServerExtensions.DavNamespacePrefix + ":set/" + DavServerExtensions.DavNamespacePrefix + ":prop/*", PropFindRequest.NsMgr).OfType<XmlElement>())
             {
                 // avoid changes when possible
@@ -79,7 +78,7 @@ namespace AmalgaDrive.DavServer
                                     break;
 
                                 case "Win32FileAttributes":
-                                    if (DavProperty.TryGetFromHexadecimal(propNode.InnerText, out i))
+                                    if (DavProperty.TryGetFromHexadecimal(propNode.InnerText, out int i))
                                     {
                                         const FileAttributes allowed = FileAttributes.Archive | FileAttributes.Hidden | FileAttributes.ReadOnly;
                                         var newAtts = (FileAttributes)i;

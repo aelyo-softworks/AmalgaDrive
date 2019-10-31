@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using AmalgaDrive.DavServer.FileSystem;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ namespace AmalgaDrive.DavServer.Controllers
 {
     public class DavController : Controller
     {
+        // this constructor will implicitely call DavServerExtensions's AddTransient code
         public DavController(IFileSystem fileSystem, ILogger<DavController> logger)
         {
             FileSystem = fileSystem;
@@ -21,19 +23,19 @@ namespace AmalgaDrive.DavServer.Controllers
         public IFileSystem FileSystem { get; }
         public ILogger<DavController> Logger { get; }
 
-        private void DumpRequestDocument([CallerMemberName] string methodName = null)
+        private async Task DumpRequestDocument([CallerMemberName] string methodName = null)
         {
-            var doc = GetRequestDocument(methodName);
+            _ = await GetRequestDocument(methodName);
         }
 
-        private XmlDocument GetRequestDocument([CallerMemberName] string methodName = null)
+        private async Task<XmlDocument> GetRequestDocument([CallerMemberName] string methodName = null)
         {
             string xml;
             using (var stream = Request.Body)
             {
                 using (var reader = new StreamReader(Request.Body))
                 {
-                    xml = reader.ReadToEnd();
+                    xml = await reader.ReadToEndAsync();
                     Log("Xml: " + xml, methodName);
                 }
             }
@@ -48,7 +50,7 @@ namespace AmalgaDrive.DavServer.Controllers
 
         private void Log(string text, [CallerMemberName] string methodName = null) => Logger.LogInformation(Thread.CurrentThread.ManagedThreadId + ":" + methodName + ": " + text);
 
-        private bool CheckUrl(string url) => CheckUrl(url, out string relativeUrl);
+        private bool CheckUrl(string url) => CheckUrl(url, out _);
         private bool CheckUrl(string url, out string relativePath)
         {
             relativePath = null;
@@ -75,10 +77,10 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpOptions]
         [Route("{*url}")]
-        public IActionResult Options(string url = null)
+        public async Task<IActionResult> Options(string url = null)
         {
             Log("Url: " + url);
-            DumpRequestDocument();
+            await DumpRequestDocument();
             if (!CheckUrl(url))
                 return NotFound();
 
@@ -90,10 +92,10 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpHead]
         [Route("{*url}")]
-        public IActionResult Head(string url = null)
+        public async Task<IActionResult> Head(string url = null)
         {
             Log("Url: " + url);
-            DumpRequestDocument();
+            await DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
@@ -105,10 +107,10 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpGet]
         [Route("{*url}")]
-        public IActionResult Get(string url = null)
+        public async Task<IActionResult> Get(string url = null)
         {
             Log("Url: " + url);
-            DumpRequestDocument();
+            await DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
@@ -127,10 +129,10 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpDelete]
         [Route("{*url}")]
-        public IActionResult Delete(string url = null)
+        public async Task<IActionResult> Delete(string url = null)
         {
             Log("Url: " + url);
-            DumpRequestDocument();
+            await DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
@@ -159,10 +161,10 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpCopy]
         [Route("{*url}")]
-        public IActionResult Copy(string url = null)
+        public async Task<IActionResult> Copy(string url = null)
         {
             Log("Url: " + url);
-            DumpRequestDocument();
+            await DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
@@ -204,10 +206,10 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpMkCol]
         [Route("{*url}")]
-        public IActionResult MkCol(string url = null)
+        public async Task<IActionResult> MkCol(string url = null)
         {
             Log("Url: " + url);
-            DumpRequestDocument();
+            await DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
@@ -258,7 +260,7 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpPut]
         [Route("{*url}")]
-        public IActionResult Put(string url = null)
+        public async Task<IActionResult> Put(string url = null)
         {
             Log("Url: " + url);
             if (!CheckUrl(url, out var relativePath))
@@ -277,7 +279,7 @@ namespace AmalgaDrive.DavServer.Controllers
                 {
                     using (var body = Request.Body)
                     {
-                        body.CopyTo(stream);
+                        await body.CopyToAsync(stream);
                     }
                 }
                 return Ok();
@@ -290,10 +292,10 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpMove]
         [Route("{*url}")]
-        public IActionResult Move(string url = null)
+        public async Task<IActionResult> Move(string url = null)
         {
             Log("Url: " + url);
-            DumpRequestDocument();
+            await DumpRequestDocument();
             if (!CheckUrl(url, out var relativePath))
                 return NotFound();
 
@@ -306,6 +308,7 @@ namespace AmalgaDrive.DavServer.Controllers
             {
                 destinationUrl = destinationUrl.Substring(0, destinationUrl.Length - 1);
             }
+
             var destination = new Uri(destinationUrl);
             if (!FileSystem.Options.TryGetRelativePath(Request, destination.ToString(), out var relativeDestinationPath))
                 return Unauthorized();
@@ -335,11 +338,11 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpLock]
         [Route("{*url}")]
-        public IActionResult Lock(string url = null)
+        public async Task<IActionResult> Lock(string url = null)
         {
             Log("Url: " + url);
-            DumpRequestDocument();
-            if (!CheckUrl(url, out var relativePath))
+            await DumpRequestDocument();
+            if (!CheckUrl(url))
                 return NotFound();
 
             // this is fake of course, we don't really support locking
@@ -349,11 +352,11 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpUnlock]
         [Route("{*url}")]
-        public IActionResult Unlock(string url = null)
+        public async Task<IActionResult> Unlock(string url = null)
         {
             Log("Url: " + url);
-            DumpRequestDocument();
-            if (!CheckUrl(url, out var relativePath))
+            await DumpRequestDocument();
+            if (!CheckUrl(url))
                 return NotFound();
 
             // that's ok, we don't really support locking
@@ -362,10 +365,10 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpPropFind]
         [Route("{*url}")]
-        public IActionResult PropFind(string url = null)
+        public async Task<IActionResult> PropFind(string url = null)
         {
             Log("Url: " + url);
-            var doc = GetRequestDocument();
+            var doc = await GetRequestDocument();
             var dr = new PropFindRequest(doc);
             if (dr.AllProperties && dr.AllPropertiesNames)
                 return BadRequest();
@@ -388,10 +391,10 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpPropPatch]
         [Route("{*url}")]
-        public IActionResult PropPatch(string url = null)
+        public async Task<IActionResult> PropPatch(string url = null)
         {
             Log("Url: " + url);
-            var doc = GetRequestDocument();
+            var doc = await GetRequestDocument();
             var dr = new PropPatchRequest(doc);
 
             if (!CheckUrl(url, out var relativePath))

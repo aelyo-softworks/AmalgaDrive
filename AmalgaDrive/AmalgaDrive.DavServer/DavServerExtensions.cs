@@ -28,7 +28,7 @@ namespace AmalgaDrive.DavServer
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
 
-            services.AddTransient((sp) =>
+            services.AddSingleton((sp) =>
             {
                 var typeName = configuration[DavServerConfigPath + "TypeName"];
                 if (string.IsNullOrWhiteSpace(typeName))

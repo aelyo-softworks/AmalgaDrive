@@ -1,18 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace AmalgaDrive.DavServer.Controllers
 {
-    public class HttpUnlockAttribute : HttpMethodAttribute
+    public sealed class HttpUnlockAttribute : HttpMethodAttribute
     {
-        private static readonly IEnumerable<string> _supportedMethods = new[] { "UNLOCK" };
+        private static readonly string[] _supportedMethods = new[] { "UNLOCK" };
 
-        public HttpUnlockAttribute() : base(_supportedMethods)
+        public HttpUnlockAttribute()
+            : base(_supportedMethods)
         {
         }
 
-        public HttpUnlockAttribute(string template) : base(_supportedMethods, template)
+        public HttpUnlockAttribute(string template)
+            : base(_supportedMethods, template)
         {
+            if (template == null)
+                throw new ArgumentNullException(nameof(template));
         }
     }
 }

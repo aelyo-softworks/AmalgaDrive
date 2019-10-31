@@ -10,10 +10,11 @@ namespace AmalgaDrive.DavServer
 {
     public class DavServerOptions
     {
-        private Lazy<IContentTypeProvider> _ctProvider = new Lazy<IContentTypeProvider>(() => new FileExtensionContentTypeProvider(), true);
+        private readonly Lazy<IContentTypeProvider> _ctProvider = new Lazy<IContentTypeProvider>(() => new FileExtensionContentTypeProvider(), true);
 
         public DavServerOptions()
         {
+            // TODO: this must match what's used on the client side. for example if the client uses "http://localhost:61786/dav" then BaseUrl must be equal to "dav"
             BaseUrl = "dav";
             //BaseUrl = "";
             RootName = "dav";

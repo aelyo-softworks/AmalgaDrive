@@ -3,14 +3,15 @@ using AmalgaDrive.DavServer;
 using AmalgaDrive.DavServer.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace AmalgaDrive.DavServerSite
 {
+    //  TODO: change the path in appsettings.json to match your environment!!
     public class Startup
     {
         public static DavServerOptions Options { get; private set; }
@@ -24,13 +25,7 @@ namespace AmalgaDrive.DavServerSite
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(options =>
-            {
-                options.AllowEmptyInputInBodyModelBinding = true;
-                options.OutputFormatters.RemoveType<JsonOutputFormatter>();
-                options.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
-            });
-
+            services.AddControllersWithViews();
             services.AddDavServer(Configuration, options =>
             {
                 // options.ServeHidden = true;
@@ -43,7 +38,7 @@ namespace AmalgaDrive.DavServerSite
             });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             // To see these ETW traces, use for example https://github.com/smourier/TraceSpy
             // The guid is an arbitrary value that you'll have to add to TraceSpy's ETW providers.
@@ -57,7 +52,12 @@ namespace AmalgaDrive.DavServerSite
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
-            app.UseMvc();
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

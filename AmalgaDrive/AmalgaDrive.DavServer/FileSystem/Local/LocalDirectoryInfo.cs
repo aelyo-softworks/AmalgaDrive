@@ -6,7 +6,7 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
 {
     public class LocalDirectoryInfo : IDirectoryInfo
     {
-        private Lazy<LocalDirectoryInfo> _parent;
+        private readonly Lazy<LocalDirectoryInfo> _parent;
 
         public LocalDirectoryInfo(LocalFileSystem system, DirectoryInfo info)
         {

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace AmalgaDrive.DavServer.Utilities
 {
     // !note: this only works on Windows!
-    public class EventProvider : IDisposable
+    public sealed class EventProvider : IDisposable
     {
         private long _handle;
 
@@ -87,7 +87,7 @@ namespace AmalgaDrive.DavServer.Utilities
         }
     }
 
-    public class EventProviderLoggerProvider : ILoggerProvider
+    public sealed class EventProviderLoggerProvider : ILoggerProvider
     {
         public EventProviderLoggerProvider(Guid id)
         {
