@@ -17,7 +17,7 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
 
             System = system;
             Info = info;
-            _parent = new Lazy<LocalDirectoryInfo>(() => System.CreateDirectoryInfo(Info.Directory));
+            _parent = new Lazy<LocalDirectoryInfo>(() => System.NewDirectoryInfo(Info.Directory));
         }
 
         public LocalFileSystem System { get; }
@@ -46,6 +46,7 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
             if (!System.IsChildPath(target))
                 throw new ArgumentException(null, nameof(rootRelativePath));
 
+            Extensions.EnsureFileDirectory(target);
             Info.MoveTo(target);
         }
 
@@ -58,6 +59,7 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
             if (!System.IsChildPath(target))
                 throw new ArgumentException(null, nameof(rootRelativePath));
 
+            Extensions.EnsureFileDirectory(target);
             Info.CopyTo(target, overwrite);
         }
     }

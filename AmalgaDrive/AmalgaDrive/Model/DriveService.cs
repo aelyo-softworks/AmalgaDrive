@@ -16,17 +16,19 @@ namespace AmalgaDrive.Model
     /// The DriveService class is the model for a remote drive, used in WPF's MVVM.
     /// </summary>
     /// <seealso cref="AmalgaDrive.Model.DriveObject" />
-    public class DriveService : DriveObject
+    public class DriveService : DriveObject, IDisposable
     {
         /// <summary>
         /// All drives root directory name
         /// </summary>
         public const string AllRootsName = "AmalgaDrive";
+
         /// <summary>
         /// All drives root full directory path.
         /// </summary>
         public static readonly string AllRootsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), AllRootsName);
 
+        private bool _disposedValue = false;
         private Lazy<ImageSource> _icon;
         private Lazy<IDriveService> _service;
         private Lazy<OnDemandSynchronizer> _onDemandSynchronizer;
@@ -85,10 +87,12 @@ namespace AmalgaDrive.Model
             get => DictionaryObjectGetPropertyValue<int>();
             set
             {
-                DictionaryObjectSetPropertyValue(value);
-                if (Name != null)
+                if (DictionaryObjectSetPropertyValue(value))
                 {
-                    _onDemandSynchronizer.Value.SyncPeriod = SyncPeriod;
+                    if (Name != null)
+                    {
+                        _onDemandSynchronizer.Value.SyncPeriod = SyncPeriod;
+                    }
                 }
             }
         }
@@ -157,14 +161,13 @@ namespace AmalgaDrive.Model
             var sync = new OnDemandSynchronizer(RootPath, Service);
             sync.Synchronizing += OnSynchronizing;
             sync.SyncPeriod = SyncPeriod;
-            sync.Logger = ((App)Application.Current).Logger;
+            sync.Logger = ((App)Application.Current)?.Logger;
             return sync;
         }
 
         // this is used to change the green sync icon dynamically
-        private void OnSynchronizing(object sender, OnDemandSynchronizerEventArgs e)
-        {
-            Application.Current.Dispatcher.BeginInvoke(() =>
+        private void OnSynchronizing(object sender, OnDemandSynchronizerEventArgs e) =>
+            Application.Current?.Dispatcher.BeginInvoke(() =>
             {
                 switch (e.Type)
                 {
@@ -179,7 +182,6 @@ namespace AmalgaDrive.Model
                         break;
                 }
             });
-        }
 
         public override string ToString() => Name;
 
@@ -206,6 +208,42 @@ namespace AmalgaDrive.Model
                         yield return "Url is invalid.";
                 }
             }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    // dispose managed state (managed objects).
+                    if (_onDemandSynchronizer.IsValueCreated)
+                    {
+                        _onDemandSynchronizer.Value?.Dispose();
+                    }
+                }
+
+                // free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // set large fields to null.
+
+                _disposedValue = true;
+            }
+        }
+
+        // override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~DriveService()
+        // {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
         }
     }
 }

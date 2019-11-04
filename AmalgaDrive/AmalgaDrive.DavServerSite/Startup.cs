@@ -3,7 +3,6 @@ using AmalgaDrive.DavServer;
 using AmalgaDrive.DavServer.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,11 +10,8 @@ using Microsoft.Extensions.Logging;
 
 namespace AmalgaDrive.DavServerSite
 {
-    //  TODO: change the path in appsettings.json to match your environment!!
     public class Startup
     {
-        public static DavServerOptions Options { get; private set; }
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -25,17 +21,17 @@ namespace AmalgaDrive.DavServerSite
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
-            services.AddDavServer(Configuration, options =>
+            // add our file system as a service and configure it
+            // TODO: change the path in appsettings.json to match your environment!!
+            services.AddFileSystem(Configuration, options =>
             {
+                // configure some options here
                 // options.ServeHidden = true;
-                Options = options;
             });
 
-            services.Configure<KestrelServerOptions>(o =>
-            {
-                o.AddServerHeader = false;
-            });
+            // from here, we use standard extensions
+            services.AddDirectoryBrowser();
+            services.AddControllers();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
@@ -45,6 +41,15 @@ namespace AmalgaDrive.DavServerSite
             // note: this will only works on Windows, but will fail gracefully on other OSes
             loggerFactory.AddEventProvider(new Guid("a3f87db5-0cba-4e4e-b712-439980e59870"));
 
+            // allows the user to browse files served by our dav server (currently only in the case of the LocalFileSystem implementation)
+            // if this is confured, don't use the RequestPath in the localdrive of course
+            var options = Configuration.GetFileSystemDirectoryBrowserOptions();
+            if (options != null)
+            {
+                app.UseDirectoryBrowser(options);
+            }
+
+            // from here, we use standard extensions
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

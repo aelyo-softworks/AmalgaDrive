@@ -70,8 +70,7 @@ namespace AmalgaDrive
 
         private static void OnCurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            var ex = e.ExceptionObject as Exception;
-            if (ex == null)
+            if (!(e.ExceptionObject is Exception ex))
                 return;
 
             bool quit = HandleException(ex);

@@ -93,7 +93,7 @@ namespace AmalgaDrive.Folder
         /// <summary>
         /// This represents any child folder beneath root.
         /// </summary>
-        class OnDemandFolder : ShellFolder
+        private class OnDemandFolder : ShellFolder
         {
             /// <summary>
             /// Initializes a new instance of the <see cref="OnDemandFolder"/> class.

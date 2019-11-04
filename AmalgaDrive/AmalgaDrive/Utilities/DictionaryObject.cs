@@ -12,7 +12,7 @@ namespace AmalgaDrive.Utilities
     // all properties and methods names start with DictionaryObject and are protected so they won't interfere with super type
     public abstract class DictionaryObject : IDictionaryObject, INotifyPropertyChanged, INotifyPropertyChanging, IDataErrorInfo, INotifyDataErrorInfo
     {
-        private ConcurrentDictionary<string, DictionaryObjectProperty> _properties = new ConcurrentDictionary<string, DictionaryObjectProperty>();
+        private readonly ConcurrentDictionary<string, DictionaryObjectProperty> _properties = new ConcurrentDictionary<string, DictionaryObjectProperty>();
 
         protected DictionaryObject()
         {
@@ -103,7 +103,7 @@ namespace AmalgaDrive.Utilities
 
         private class ObjectComparer : IEqualityComparer<object>
         {
-            private DictionaryObject _dob;
+            private readonly DictionaryObject _dob;
 
             public ObjectComparer(DictionaryObject dob)
             {

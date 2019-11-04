@@ -15,8 +15,7 @@ namespace AmalgaDrive
 
         private class LoggerImpl : ILogger
         {
-            public void Log(TraceLevel level, object value, [CallerMemberName] string methodName = null)
-            {
+            public void Log(TraceLevel level, object value, [CallerMemberName] string methodName = null) =>
                 Current.Dispatcher.BeginInvoke(() =>
                 {
                     if (!(Current.MainWindow is MainWindow win))
@@ -24,7 +23,6 @@ namespace AmalgaDrive
 
                     win.AppendTrace(level, value, methodName);
                 });
-            }
         }
 
         public ILogger Logger { get; }

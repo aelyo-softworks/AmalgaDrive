@@ -53,26 +53,26 @@ namespace AmalgaDrive.Utilities
 
     public class Int32TextBox : ValidatingTextBox
     {
-        protected override void OnValidateText(object sender, ValidateTextEventArgs e) => e.Cancel = !int.TryParse(e.Text, out var value);
+        protected override void OnValidateText(object sender, ValidateTextEventArgs e) => e.Cancel = !int.TryParse(e.Text, out _);
     }
 
     public class Int64TextBox : ValidatingTextBox
     {
-        protected override void OnValidateText(object sender, ValidateTextEventArgs e) => e.Cancel = !long.TryParse(e.Text, out var value);
+        protected override void OnValidateText(object sender, ValidateTextEventArgs e) => e.Cancel = !long.TryParse(e.Text, out _);
     }
 
     public class DoubleTextBox : ValidatingTextBox
     {
-        protected override void OnValidateText(object sender, ValidateTextEventArgs e) => e.Cancel = !double.TryParse(e.Text, out var value);
+        protected override void OnValidateText(object sender, ValidateTextEventArgs e) => e.Cancel = !double.TryParse(e.Text, out _);
     }
 
     public class SingleTextBox : ValidatingTextBox
     {
-        protected override void OnValidateText(object sender, ValidateTextEventArgs e) => e.Cancel = !float.TryParse(e.Text, out var value);
+        protected override void OnValidateText(object sender, ValidateTextEventArgs e) => e.Cancel = !float.TryParse(e.Text, out _);
     }
 
     public class DecimalTextBox : ValidatingTextBox
     {
-        protected override void OnValidateText(object sender, ValidateTextEventArgs e) => e.Cancel = !decimal.TryParse(e.Text, out var value);
+        protected override void OnValidateText(object sender, ValidateTextEventArgs e) => e.Cancel = !decimal.TryParse(e.Text, out _);
     }
 }

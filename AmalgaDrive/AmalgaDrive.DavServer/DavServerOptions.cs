@@ -15,6 +15,7 @@ namespace AmalgaDrive.DavServer
         public DavServerOptions()
         {
             // TODO: this must match what's used on the client side. for example if the client uses "http://localhost:61786/dav" then BaseUrl must be equal to "dav"
+            // must match AmalgaDrive.DavServerSite's default.html (a/href) and appsettings.json (DirectoryBrowserRequestPath)
             BaseUrl = "dav";
             //BaseUrl = "";
             RootName = "dav";
@@ -79,6 +80,12 @@ namespace AmalgaDrive.DavServer
 
             if (url == null)
                 throw new ArgumentNullException(nameof(url));
+
+            // relative url ?
+            if (url.StartsWith("/"))
+            {
+                url = GetPublicBaseUrl(request) + url;
+            }
 
             relativePath = null;
             string publicBaseUrl = GetPublicBaseUrl(request);

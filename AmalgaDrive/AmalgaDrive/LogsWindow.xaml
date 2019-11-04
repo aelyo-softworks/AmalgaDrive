@@ -1,17 +1,31 @@
-﻿<Window x:Class="AmalgaDrive.LogsWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AmalgaDrive"
-        mc:Ignorable="d"
-        Title="Logs" Height="450" Width="800">
+﻿<Window
+    x:Class="AmalgaDrive.LogsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:AmalgaDrive"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Logs"
+    Width="800"
+    Height="450"
+    mc:Ignorable="d">
     <Grid>
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <TextBox IsReadOnly="True" Name="TB" FontFamily="Lucida Console" FontSize="10">
+            <TextBox
+                Name="TB"
+                FontFamily="Lucida Console"
+                FontSize="10"
+                IsReadOnly="True">
                 <TextBox.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Clear" Name="Clear" Click="Clear_Click" />
+                        <MenuItem
+                            Name="Clear"
+                            Click="Clear_Click"
+                            Header="Clear" />
+                        <MenuItem
+                            Name="CopyAll"
+                            Click="CopyAll_Click"
+                            Header="Copy All" />
                     </ContextMenu>
                 </TextBox.ContextMenu>
             </TextBox>

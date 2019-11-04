@@ -22,5 +22,6 @@ namespace AmalgaDrive
         }
 
         private void Clear_Click(object sender, RoutedEventArgs e) => TB.Clear();
+        private void CopyAll_Click(object sender, RoutedEventArgs e) => Clipboard.SetText(TB.Text);
     }
 }

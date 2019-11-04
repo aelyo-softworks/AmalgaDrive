@@ -13,7 +13,7 @@ namespace AmalgaDrive.Utilities
 {
     public static class UIUtilities
     {
-        private static Lazy<Thickness> _windowCaptionHeight = new Lazy<Thickness>(() =>
+        private static readonly Lazy<Thickness> _windowCaptionHeight = new Lazy<Thickness>(() =>
         {
             // https://stackoverflow.com/questions/28524463/how-to-get-the-default-caption-bar-height-of-a-window-in-windows
             // https://connect.microsoft.com/VisualStudio/feedback/details/763767/the-systemparameters-windowresizeborderthickness-seems-to-return-incorrect-value
@@ -22,20 +22,20 @@ namespace AmalgaDrive.Utilities
             return new Thickness(tn.Left, tn.Top + addedBorder, tn.Right, tn.Bottom);
         });
 
-        private static Lazy<Thickness> _glassFrameThickness = new Lazy<Thickness>(() =>
+        private static readonly Lazy<Thickness> _glassFrameThickness = new Lazy<Thickness>(() =>
         {
             int addedBorder = GetSystemMetrics(SM_CXPADDEDBORDER);
             var tn = SystemParameters.WindowNonClientFrameThickness;
             return new Thickness(2, tn.Top + addedBorder, 2, 2);
         });
 
-        private static Lazy<Thickness> _titleMargin = new Lazy<Thickness>(() =>
+        private static readonly Lazy<Thickness> _titleMargin = new Lazy<Thickness>(() =>
         {
             var height = _windowCaptionHeight.Value.Top;
             return new Thickness(8, (height - TitleSize) / 2, 0, 0);
         });
 
-        private static Lazy<ImageSource> _iconSource = new Lazy<ImageSource>(() =>
+        private static readonly Lazy<ImageSource> _iconSource = new Lazy<ImageSource>(() =>
         {
             using (var stream = Application.GetResourceStream(new Uri("/" + typeof(App).Namespace + ".ico", UriKind.Relative)).Stream)
             {
@@ -46,7 +46,7 @@ namespace AmalgaDrive.Utilities
             }
         });
 
-        private static Lazy<Icon> _icon = new Lazy<Icon>(() =>
+        private static readonly Lazy<Icon> _icon = new Lazy<Icon>(() =>
         {
             using (var stream = Application.GetResourceStream(new Uri("/" + typeof(App).Namespace + ".ico", UriKind.Relative)).Stream)
             {
@@ -61,10 +61,8 @@ namespace AmalgaDrive.Utilities
         public static ImageSource IconSource => _iconSource.Value;
         public static Icon Icon => _icon.Value;
 
+#pragma warning disable IDE1006 // Naming Styles
         private const int SM_CXPADDEDBORDER = 0x5C;
-
-        [DllImport("user32")]
-        private static extern int GetSystemMetrics(int nIndex);
 
         private const int HTLEFT = 10;
         private const int HTRIGHT = 11;
@@ -75,6 +73,10 @@ namespace AmalgaDrive.Utilities
         private const int HTBOTTOMLEFT = 16;
         private const int HTBOTTOMRIGHT = 17;
         private const int WM_NCHITTEST = 0x0084;
+#pragma warning restore IDE1006 // Naming Styles
+
+        [DllImport("user32")]
+        private static extern int GetSystemMetrics(int nIndex);
 
         [DllImport("user32")]
         private static extern IntPtr DefWindowProc(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
@@ -176,14 +178,13 @@ namespace AmalgaDrive.Utilities
         public static T GetDataContext<T>(object input)
         {
             if (input == null)
-                return default(T);
+                return default;
 
-            var fe = input as FrameworkElement;
-            if (fe == null || fe.DataContext == null)
-                return default(T);
+            if (!(input is FrameworkElement fe) || fe.DataContext == null)
+                return default;
 
             if (!typeof(T).IsAssignableFrom(fe.DataContext.GetType()))
-                return default(T);
+                return default;
 
             return (T)fe.DataContext;
         }

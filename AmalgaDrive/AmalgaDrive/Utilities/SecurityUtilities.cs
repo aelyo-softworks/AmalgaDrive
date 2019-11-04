@@ -186,13 +186,15 @@ namespace AmalgaDrive.Utilities
             public IntPtr pbData;
         }
 
+#pragma warning disable IDE1006 // Naming Styles
         private const int CRYPTPROTECT_UI_FORBIDDEN = 0x1;
         private const int CRYPTPROTECT_LOCAL_MACHINE = 0x4;
+#pragma warning restore IDE1006 // Naming Styles
 
-        [DllImport("crypt32", SetLastError = true, CharSet = CharSet.Auto)]
+        [DllImport("crypt32", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern bool CryptProtectData(ref DATA_BLOB pDataIn, string szDataDescr, IntPtr pOptionalEntropy, IntPtr pvReserved, IntPtr pPromptStruct, int dwFlags, ref DATA_BLOB pDataOut);
 
-        [DllImport("crypt32", SetLastError = true, CharSet = CharSet.Auto)]
+        [DllImport("crypt32", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern bool CryptUnprotectData(ref DATA_BLOB pDataIn, string szDataDescr, IntPtr pOptionalEntropy, IntPtr pvReserved, IntPtr pPromptStruct, int dwFlags, ref DATA_BLOB pDataOut);
 
         [DllImport("kernel32")]

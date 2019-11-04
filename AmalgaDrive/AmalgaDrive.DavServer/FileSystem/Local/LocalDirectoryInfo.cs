@@ -18,12 +18,12 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
 
             System = system;
             Info = info;
-            _parent = new Lazy<LocalDirectoryInfo>(() => System.CreateDirectoryInfo(Info.Parent));
+            _parent = new Lazy<LocalDirectoryInfo>(() => System.NewDirectoryInfo(Info.Parent));
         }
 
         public LocalFileSystem System { get; }
         public DirectoryInfo Info { get; }
-        public virtual IDirectoryInfo Parent { get; }
+        public virtual IDirectoryInfo Parent => _parent.Value;
         public virtual string Name => Info.Name;
         public virtual bool IsRoot => false;
 
@@ -76,7 +76,7 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
                 if (dir.Attributes.HasFlag(FileAttributes.Hidden) && !System.Options.ServeHidden)
                     continue;
 
-                yield return System.CreateDirectoryInfo(dir);
+                yield return System.NewDirectoryInfo(dir);
             }
         }
 
@@ -87,7 +87,7 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
                 if (file.Attributes.HasFlag(FileAttributes.Hidden) && !System.Options.ServeHidden)
                     continue;
 
-                yield return System.CreateFileInfo(file);
+                yield return System.NewFileInfo(file);
             }
         }
     }

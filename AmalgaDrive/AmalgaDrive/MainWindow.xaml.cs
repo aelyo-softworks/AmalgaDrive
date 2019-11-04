@@ -22,13 +22,13 @@ namespace AmalgaDrive
     public partial class MainWindow : Window
     {
         private HwndSource _source;
-        private Thread _serverThread;
-        private AutoResetEvent _serverStopEvent;
-        private System.Windows.Forms.NotifyIcon _notifyIcon = new System.Windows.Forms.NotifyIcon();
-        private LogsWindow _logs;
-        private State _state;
+        private readonly Thread _serverThread;
+        private readonly AutoResetEvent _serverStopEvent;
+        private readonly System.Windows.Forms.NotifyIcon _notifyIcon = new System.Windows.Forms.NotifyIcon();
+        private readonly LogsWindow _logs;
+        private readonly State _state;
         private OnDemandShellFolderServer _server;
-        private ObservableCollection<DriveService> _driveServices = new ObservableCollection<DriveService>();
+        private readonly ObservableCollection<DriveService> _driveServices = new ObservableCollection<DriveService>();
 
         public MainWindow()
         {
@@ -99,7 +99,7 @@ namespace AmalgaDrive
 
         private class Logger : ILogger
         {
-            private MainWindow _window;
+            private readonly MainWindow _window;
 
             public Logger(MainWindow window)
             {
@@ -136,18 +136,15 @@ namespace AmalgaDrive
         {
             if (text != null)
             {
-                text = DateTime.Now + " [" + Thread.CurrentThread.ManagedThreadId + "]: " + text;
+                var threadName = Thread.CurrentThread.Name ?? Thread.CurrentThread.ManagedThreadId.ToString();
+                text = DateTime.Now + " [" + threadName + "]: " + text;
             }
 
             Dispatcher.BeginInvoke(() =>
             {
-                _logs.TB.Text += Environment.NewLine;
-                if (text != null)
-                {
-                    _logs.TB.Text += text;
-                }
+                _logs.TB.AppendText(Environment.NewLine + text);
                 _logs.TB.ScrollToEnd();
-            }, DispatcherPriority.ApplicationIdle);
+            }, DispatcherPriority.Background);
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -212,6 +209,10 @@ namespace AmalgaDrive
         // minimized if closed
         protected override void OnClosing(CancelEventArgs e)
         {
+            foreach (var ds in _driveServices)
+            {
+                ds.Dispose();
+            }
 #if DEBUG
             base.OnClosing(e);
             return;
@@ -334,8 +335,7 @@ namespace AmalgaDrive
             }
         }
 
-        private void RestartExplorer_Click(object sender, RoutedEventArgs e)
-        {
+        private void RestartExplorer_Click(object sender, RoutedEventArgs e) =>
             ThreadPool.QueueUserWorkItem((state) =>
             {
                 var rm = new RestartManager();
@@ -345,7 +345,6 @@ namespace AmalgaDrive
                 }, false, out Exception error);
                 AppendText("Windows Explorer was restarted...");
             });
-        }
 
         private void Unregister_Click(object sender, RoutedEventArgs e)
         {
@@ -363,6 +362,9 @@ namespace AmalgaDrive
         private void Synchronize_Click(object sender, RoutedEventArgs e)
         {
             var service = UIUtilities.GetDataContext<DriveService>(sender);
+            if (service == null)
+                return;
+
             service.OnDemandSynchronizer.AddSyncPath(string.Empty); // add root
             service.OnDemandSynchronizer.SynchronizeAll();
         }

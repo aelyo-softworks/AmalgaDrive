@@ -10,7 +10,7 @@ namespace AmalgaDrive.Configuration
 {
     public class Settings : Serializable<Settings>
     {
-        private static Lazy<Settings> _current = new Lazy<Settings>(() => Deserialize(DefaultConfigurationFilePath), true);
+        private static readonly Lazy<Settings> _current = new Lazy<Settings>(() => Deserialize(DefaultConfigurationFilePath), true);
         public static Settings Current => _current.Value;
         public static void CurrentSerialize() => Current.Serialize();
 

@@ -9,6 +9,7 @@
 	  <Version>1.1.0.0</Version>
 	  <NeutralLanguage />
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <UserSecretsId>236fb1a6-c25d-4831-b3d9-e5423dcfe11f</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

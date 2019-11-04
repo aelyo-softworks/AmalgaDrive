@@ -8,8 +8,8 @@ namespace AmalgaDrive
         public static readonly SingleInstance Singleton = new SingleInstance(typeof(App).FullName);
 
         [STAThread]
-        public static void Main(string[] args) =>
-            
+        public static void Main()
+        {
             // NOTE: if this always return false, close & restart Visual Studio
             // this is probably due to the vshost.exe thing
             Singleton.RunFirstInstance(() =>
@@ -19,5 +19,6 @@ namespace AmalgaDrive
                 app.InitializeComponent();
                 app.Run();
             });
+        }
     }
 }

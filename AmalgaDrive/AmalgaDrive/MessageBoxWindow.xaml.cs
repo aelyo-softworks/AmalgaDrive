@@ -96,7 +96,6 @@ namespace AmalgaDrive
         public static MessageBoxResult Show(this Window window, string text, string caption,
             MessageBoxButton button = MessageBoxButton.OK,
             MessageBoxImage image = MessageBoxImage.None,
-            MessageBoxResult result = MessageBoxResult.OK,
             ImageSource imageSource = null)
         {
             var dlg = new MessageBoxWindow();
@@ -183,15 +182,15 @@ namespace AmalgaDrive
                     break;
             }
 
-            var res = dlg.ShowDialog();
+            _ = dlg.ShowDialog();
             return dlg.Result;
         }
 
         public static void ShowError(this Window window, string text) => ShowMessage(window, text, MessageBoxImage.Error);
         public static void ShowMessage(this Window window, string text) => Show(window, text, null, MessageBoxButton.OK);
         public static void ShowMessage(this Window window, string text, MessageBoxImage image) => Show(window, text, null, MessageBoxButton.OK, image);
-        public static void ShowMessage(this Window window, string text, ImageSource image) => Show(window, text, null, MessageBoxButton.OK, MessageBoxImage.None, MessageBoxResult.OK, image);
-        public static MessageBoxResult ShowConfirm(this Window window, string text) => Show(window, text, null, MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-        public static MessageBoxResult ShowConfirmCancel(this Window window, string text) => Show(window, text, null, MessageBoxButton.YesNoCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
+        public static void ShowMessage(this Window window, string text, ImageSource image) => Show(window, text, null, MessageBoxButton.OK, MessageBoxImage.None, image);
+        public static MessageBoxResult ShowConfirm(this Window window, string text) => Show(window, text, null, MessageBoxButton.YesNo, MessageBoxImage.Question);
+        public static MessageBoxResult ShowConfirmCancel(this Window window, string text) => Show(window, text, null, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
     }
 }

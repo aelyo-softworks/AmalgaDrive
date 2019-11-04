@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
@@ -9,13 +8,12 @@ using AmalgaDrive.Configuration;
 using AmalgaDrive.Drive;
 using AmalgaDrive.Model;
 using AmalgaDrive.Utilities;
-using ShellBoost.Core;
 
 namespace AmalgaDrive
 {
     public partial class EditDriveServiceWindow : Window
     {
-        private string _dummyPassword;
+        private readonly string _dummyPassword;
 
         public EditDriveServiceWindow(DriveService service)
         {

@@ -23,10 +23,7 @@ namespace AmalgaDrive.DavServer.Controllers
         public IFileSystem FileSystem { get; }
         public ILogger<DavController> Logger { get; }
 
-        private async Task DumpRequestDocument([CallerMemberName] string methodName = null)
-        {
-            _ = await GetRequestDocument(methodName);
-        }
+        private async Task DumpRequestDocument([CallerMemberName] string methodName = null) => _ = await GetRequestDocument(methodName);
 
         private async Task<XmlDocument> GetRequestDocument([CallerMemberName] string methodName = null)
         {
@@ -177,7 +174,8 @@ namespace AmalgaDrive.DavServer.Controllers
             {
                 destinationUrl = destinationUrl.Substring(0, destinationUrl.Length - 1);
             }
-            var destination = new Uri(destinationUrl);
+            
+            var destination = new Uri(destinationUrl, UriKind.RelativeOrAbsolute);
             if (!FileSystem.Options.TryGetRelativePath(Request, destination.ToString(), out var relativeDestinationPath))
                 return Unauthorized();
 
@@ -260,6 +258,7 @@ namespace AmalgaDrive.DavServer.Controllers
 
         [HttpPut]
         [Route("{*url}")]
+        [DisableRequestSizeLimit] // note we added this to disable the 30M request limit https://github.com/aspnet/Announcements/issues/267
         public async Task<IActionResult> Put(string url = null)
         {
             Log("Url: " + url);
@@ -275,8 +274,10 @@ namespace AmalgaDrive.DavServer.Controllers
             string path = Path.Combine(FileSystem.RootPath, relativePath);
             try
             {
+                Extensions.EnsureFileDirectory(path);
                 using (var stream = System.IO.File.OpenWrite(path))
                 {
+                    // note this can be empty, in this case we create an empty file
                     using (var body = Request.Body)
                     {
                         await body.CopyToAsync(stream);
@@ -309,7 +310,7 @@ namespace AmalgaDrive.DavServer.Controllers
                 destinationUrl = destinationUrl.Substring(0, destinationUrl.Length - 1);
             }
 
-            var destination = new Uri(destinationUrl);
+            var destination = new Uri(destinationUrl, UriKind.RelativeOrAbsolute);
             if (!FileSystem.Options.TryGetRelativePath(Request, destination.ToString(), out var relativeDestinationPath))
                 return Unauthorized();
 

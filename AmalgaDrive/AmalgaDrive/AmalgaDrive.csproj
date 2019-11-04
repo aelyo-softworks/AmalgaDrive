@@ -38,6 +38,9 @@
   <PropertyGroup>
     <ApplicationIcon>AmalgaDrive.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ShellBoost.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=744e822bc93b8fcf, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -158,6 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
+    <None Include="app.manifest" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

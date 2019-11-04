@@ -45,7 +45,22 @@ namespace AmalgaDrive.Drive.Dav
 
         public ImageSource Icon => StockIcon.GetStockBitmap(StockIconId.MYNETWORK, StockIcon.SHGSI.SHGSI_LARGEICON);
 
-        protected virtual WebClient CreateWebClient() => new WebClient();
+        private WebClient2 CreateWebClient() => new WebClient2();
+        private class WebClient2 : WebClient
+        {
+            // this is mostly used for HEAD witch doesn't support null nor empty body
+            public string Method { get; set; }
+
+            protected override WebRequest GetWebRequest(Uri address)
+            {
+                var webRequest = base.GetWebRequest(address);
+                if (!string.IsNullOrEmpty(Method))
+                {
+                    webRequest.Method = Method;
+                }
+                return webRequest;
+            }
+        }
 
         protected virtual void SetupWebClient(WebClient client)
         {
@@ -90,8 +105,11 @@ namespace AmalgaDrive.Drive.Dav
             if (resource == null)
                 throw new ArgumentNullException(nameof(resource));
 
-            var uri = GetUri(path);
+            // properties can be null
 
+            // rename is when the resource name doesn't match the path
+            bool rename = resource.DisplayName != null && !resource.DisplayName.EqualsIgnoreCase(Path.GetFileName(path));
+            var uri = GetUri(path);
             using (var client = CreateWebClient())
             {
                 if (client == null)
@@ -99,29 +117,57 @@ namespace AmalgaDrive.Drive.Dav
 
                 SetupWebClient(client);
 
-                var inputDoc = new XmlDocument();
-                var pud = inputDoc.CreateElement(null, "propertyupdate", DavNamespaceUri);
-                inputDoc.AppendChild(pud);
-                var set = inputDoc.CreateElement(null, "set", DavNamespaceUri);
-                pud.AppendChild(set);
-                var prop = inputDoc.CreateElement(null, "prop", DavNamespaceUri);
-                set.AppendChild(prop);
-
-                AddProperty(prop, "Win32FileAttributes", MsNamespaceUri, ((int)resource.Attributes).ToHex());
-                AddProperty(prop, "Win32CreationTime", MsNamespaceUri, resource.CreationTimeUtc);
-                AddProperty(prop, "Win32LastModifiedTime", MsNamespaceUri, resource.LastWriteTimeUtc);
-
                 string xml;
-                try
+                if (rename)
                 {
-                    xml = client.UploadString(uri, "PROPPATCH", string.Empty);
+                    client.Headers["Overwrite"] = "t";
+                    var newPath = Path.Combine(Path.GetDirectoryName(path), resource.DisplayName);
+                    var newUri = GetUri(newPath);
+                    client.Headers["Destination"] = newUri.AbsolutePath;
+
+                    try
+                    {
+                        xml = client.UploadString(uri, "MOVE", string.Empty);
+                    }
+                    catch (Exception e)
+                    {
+                        context.AddError(e);
+                        context.Log(TraceLevel.Error, "Error on MOVE " + uri + ": " + e.Message);
+                        throw;
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    context.AddError(e);
-                    context.Log(TraceLevel.Error, "Error on PROPPATCH " + uri + ": " + e.Message);
-                    // continue
-                    xml = null;
+                    var inputDoc = new XmlDocument();
+                    var pud = inputDoc.CreateElement(null, "propertyupdate", DavNamespaceUri);
+                    inputDoc.AppendChild(pud);
+                    var set = inputDoc.CreateElement(null, "set", DavNamespaceUri);
+                    pud.AppendChild(set);
+                    var prop = inputDoc.CreateElement(null, "prop", DavNamespaceUri);
+                    set.AppendChild(prop);
+
+                    AddProperty(prop, "Win32FileAttributes", MsNamespaceUri, ((int)resource.Attributes).ToHex());
+
+                    if (resource.CreationTimeUtc != DateTime.MinValue)
+                    {
+                        AddProperty(prop, "Win32CreationTime", MsNamespaceUri, resource.CreationTimeUtc);
+                    }
+
+                    if (resource.LastWriteTimeUtc != DateTime.MinValue)
+                    {
+                        AddProperty(prop, "Win32LastModifiedTime", MsNamespaceUri, resource.LastWriteTimeUtc);
+                    }
+
+                    try
+                    {
+                        xml = client.UploadString(uri, "PROPPATCH", inputDoc.OuterXml);
+                    }
+                    catch (Exception e)
+                    {
+                        context.AddError(e);
+                        context.Log(TraceLevel.Error, "Error on PROPPATCH " + uri + ": " + e.Message);
+                        throw;
+                    }
                 }
 
                 var doc = new XmlDocument();
@@ -135,7 +181,7 @@ namespace AmalgaDrive.Drive.Dav
                     {
                         context.AddError(e);
                         context.Log(TraceLevel.Error, "Error on LoadXml " + uri + ": " + e.Message);
-                        // continue
+                        throw;
                     }
                 }
             }
@@ -149,11 +195,7 @@ namespace AmalgaDrive.Drive.Dav
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
 
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
             var uri = GetUri(path);
-
             using (var client = CreateWebClient())
             {
                 if (client == null)
@@ -161,19 +203,48 @@ namespace AmalgaDrive.Drive.Dav
 
                 SetupWebClient(client);
 
+                // input can be null for empty files (or files that are locked but still must exist on the server)
+                if (input == null)
+                {
+                    // but if the file already exists, don't overwrite it with an empty body
+                    if (ResourceExists(client, uri))
+                        return;
+                }
+
                 try
                 {
                     using (var stream = client.OpenWrite(uri, "PUT"))
                     {
-                        input.CopyTo(stream);
+                        input?.CopyTo(stream);
                     }
+
+                    // Note: if you get a 404 error on this line while everything else seems ok and usully works,
+                    // it may be due to an upload size limit from the server (limit value is by default around 30M).
+                    // Check AmalgaDrive.DavServerSite Program.cs for more information
                 }
                 catch (Exception e)
                 {
                     context.AddError(e);
                     context.Log(TraceLevel.Error, "Error on PUT " + uri + ": " + e.Message);
-                    // continue
+                    throw;
                 }
+            }
+        }
+
+        private static bool ResourceExists(WebClient2 client, Uri uri)
+        {
+            try
+            {
+                client.Method = "HEAD"; // HEAD is special, it's not supported by standard WebClient because it must have a null body but the Upload method don't accept it
+                client.DownloadString(uri);
+                return true;
+            }
+            catch (Exception e)
+            {
+                if (!IsNotFound(e))
+                    throw;
+
+                return false;
             }
         }
 
@@ -189,7 +260,6 @@ namespace AmalgaDrive.Drive.Dav
                 throw new ArgumentNullException(nameof(output));
 
             var uri = GetUri(path);
-
             using (var client = CreateWebClient())
             {
                 if (client == null)
@@ -230,7 +300,7 @@ namespace AmalgaDrive.Drive.Dav
                 {
                     context.AddError(e);
                     context.Log(TraceLevel.Error, "Error on GET " + uri + ": " + e.Message);
-                    // continue
+                    throw;
                 }
             }
         }
@@ -241,7 +311,6 @@ namespace AmalgaDrive.Drive.Dav
                 throw new ArgumentNullException(nameof(context));
 
             var uri = GetUri(path);
-
             using (var client = CreateWebClient())
             {
                 if (client == null)
@@ -257,6 +326,7 @@ namespace AmalgaDrive.Drive.Dav
                 {
                     context.AddError(e);
                     context.Log(TraceLevel.Error, "Error on MKCOL " + uri + ": " + e.Message);
+                    throw;
                 }
             }
         }
@@ -267,7 +337,6 @@ namespace AmalgaDrive.Drive.Dav
                 throw new ArgumentNullException(nameof(context));
 
             var uri = GetUri(path);
-
             using (var client = CreateWebClient())
             {
                 if (client == null)
@@ -281,8 +350,14 @@ namespace AmalgaDrive.Drive.Dav
                 }
                 catch (Exception e)
                 {
-                    context.AddError(e);
-                    context.Log(TraceLevel.Error, "Error on DELETE " + uri + ": " + e.Message);
+                    if (!IsNotFound(e)) // already deleted?
+                    {
+                        context.AddError(e);
+                        context.Log(TraceLevel.Error, "Error on DELETE " + uri + ": " + e.Message);
+                        throw;
+                    }
+
+                    context.Log(TraceLevel.Warning, "Error on DELETE " + uri + ": " + e.Message);
                 }
             }
         }
@@ -292,7 +367,7 @@ namespace AmalgaDrive.Drive.Dav
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            return EnumResources(context, path).FirstOrDefault();
+            return EnumResources(context, path, false).FirstOrDefault();
         }
 
         public Uri GetUri(string parentPath)
@@ -309,20 +384,24 @@ namespace AmalgaDrive.Drive.Dav
             return builder.Uri;
         }
 
-        public virtual IEnumerable<IRemoteResource> EnumResources(RemoteOperationContext context, string parentPath)
+        public virtual IEnumerable<IRemoteResource> EnumResources(RemoteOperationContext context, string parentPath) => EnumResources(context, parentPath, true);
+        private IEnumerable<IRemoteResource> EnumResources(RemoteOperationContext context, string parentPath, bool children)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
             var uri = GetUri(parentPath);
-
             using (var client = CreateWebClient())
             {
                 if (client == null)
                     throw new InvalidOperationException();
 
                 SetupWebClient(client);
-                client.Headers["depth"] = "1";
+
+                if (children)
+                {
+                    client.Headers["depth"] = "1";
+                }
 
                 string xml;
                 try
@@ -331,25 +410,31 @@ namespace AmalgaDrive.Drive.Dav
                 }
                 catch (Exception e)
                 {
-                    context.AddError(e);
-                    context.Log(TraceLevel.Error, "Error on PROPFIND " + uri + ": " + e.Message);
-                    // continue
+                    // 404?
+                    if (!IsNotFound(e))
+                    {
+                        context.AddError(e);
+                        context.Log(TraceLevel.Error, "Error on PROPFIND " + uri + ": " + e.Message);
+                        throw;
+                    }
+
+                    context.Log(TraceLevel.Warning, "Error on PROPFIND " + uri + ": " + e.Message);
                     xml = null;
                 }
 
+                if (string.IsNullOrWhiteSpace(xml))
+                    yield break;
+
                 var doc = new XmlDocument();
-                if (!string.IsNullOrWhiteSpace(xml))
+                try
                 {
-                    try
-                    {
-                        doc.LoadXml(xml);
-                    }
-                    catch (Exception e)
-                    {
-                        context.AddError(e);
-                        context.Log(TraceLevel.Error, "Error on LoadXml " + uri + ": " + e.Message);
-                        // continue
-                    }
+                    doc.LoadXml(xml);
+                }
+                catch (Exception e)
+                {
+                    context.AddError(e);
+                    context.Log(TraceLevel.Error, "Error on LoadXml " + uri + ": " + e.Message);
+                    throw;
                 }
 
                 foreach (var response in doc.SelectNodes(DavNamespacePrefix + ":multistatus/" + DavNamespacePrefix + ":response", NsMgr).OfType<XmlElement>())
@@ -368,16 +453,21 @@ namespace AmalgaDrive.Drive.Dav
                         href = IOUtilities.UrlCombine(DriveService.BaseUri.ToString(), href);
                     }
 
-                    // skip root dir
-                    string uris = uri.ToString();
-                    var hrefUri = new Uri(href).ToString(); // handle escaping
-                    if (hrefUri == uris || (!uris.EndsWith("/") && hrefUri == uris + "/"))
-                        continue;
+                    if (children)
+                    {
+                        // skip root dir
+                        string uris = uri.ToString();
+                        var hrefUri = new Uri(href).ToString(); // handle escaping
+                        if (hrefUri == uris || (!uris.EndsWith("/") && hrefUri == uris + "/"))
+                            continue;
+                    }
 
                     var resource = new DavResource(context, href, response["propstat", DavNamespaceUri]);
                     yield return resource;
                 }
             }
         }
+
+        private static bool IsNotFound(Exception e) => e is WebException we && we.Response is HttpWebResponse hw && hw.StatusCode == HttpStatusCode.NotFound;
     }
 }

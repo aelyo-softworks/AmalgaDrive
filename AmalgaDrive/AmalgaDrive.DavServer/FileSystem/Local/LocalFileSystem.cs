@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.FileProviders;
 
 namespace AmalgaDrive.DavServer.FileSystem.Local
 {
@@ -9,7 +11,7 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
     {
         public const string LongFileNamePrefix = @"\\?\";
 
-        private static readonly HashSet<string> ReservedFileNames = new HashSet<string>(new string[]
+        private static readonly HashSet<string> _reservedFileNames = new HashSet<string>(new string[]
             {
                 "con", "prn", "aux", "nul",
                 "com0", "com1", "com2", "com3", "com4", "com5", "com6", "com7", "com8", "com9",
@@ -25,9 +27,9 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
         public virtual DavServerOptions Options { get; }
         public override string ToString() => RootPath;
 
-        public virtual LocalFileInfo CreateFileInfo(FileInfo info) => new LocalFileInfo(this, info);
-        public virtual LocalDirectoryInfo CreateDirectoryInfo(DirectoryInfo info) => new LocalDirectoryInfo(this, info);
-        public virtual LocalRootDirectoryInfo CreateRootDirectoryInfo(DirectoryInfo info) => new LocalRootDirectoryInfo(this, info);
+        public virtual LocalFileInfo NewFileInfo(FileInfo info) => new LocalFileInfo(this, info);
+        public virtual LocalDirectoryInfo NewDirectoryInfo(DirectoryInfo info) => new LocalDirectoryInfo(this, info);
+        public virtual LocalRootDirectoryInfo NewRootDirectoryInfo(DirectoryInfo info) => new LocalRootDirectoryInfo(this, info);
 
         public virtual void Initialize(Action<DavServerOptions> setupAction, IDictionary<string, string> properties)
         {
@@ -35,20 +37,49 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
                 throw new ArgumentNullException(nameof(properties));
 
             var path = properties.GetNullifiedValue(nameof(RootPath));
-            if (path == null)
+            if (string.IsNullOrWhiteSpace(path))
                 throw new DavServerException("0002: Configuration is missing parameter '" + nameof(RootPath) + "'.");
 
             if (!Path.IsPathRooted(path))
                 throw new DavServerException("0004: Parameter '" + nameof(RootPath) + "' must be rooted.");
 
             // make sure we use long file names
-            if (!path.StartsWith(@"\\?\"))
-            {
-                path = LongFileNamePrefix + path;
-            }
             RootPath = path;
+            if (!RootPath.StartsWith(@"\\?\"))
+            {
+                RootPath = LongFileNamePrefix + RootPath;
+            }
+
+            if (!Extensions.DirectoryExists(RootPath))
+                throw new DavServerException("0006: Directory root path '" + path + "' cannot be found, please check the appsettings.json file.");
 
             setupAction?.Invoke(Options);
+        }
+
+        public static DirectoryBrowserOptions GetDirectoryBrowserOptions(IDictionary<string, string> properties)
+        {
+            if (properties == null)
+                return null;
+
+            var path = properties.GetNullifiedValue("DirectoryBrowserRequestPath");
+            if (string.IsNullOrWhiteSpace(path))
+                return null;
+
+            var rootPath = properties.GetNullifiedValue(nameof(RootPath));
+            if (string.IsNullOrWhiteSpace(rootPath))
+                return null;
+
+            var options = new DirectoryBrowserOptions();
+            options.RequestPath = path;
+            try
+            {
+                options.FileProvider = new PhysicalFileProvider(rootPath);
+            }
+            catch (Exception e)
+            {
+                throw new DavServerException("0005: There is a configuration error, please check the appsettings.json file.", e);
+            }
+            return options;
         }
 
         public virtual bool IsChildPath(string path)
@@ -95,7 +126,7 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
                 var di = new DirectoryInfo(RootPath);
                 if (di.Exists)
                 {
-                    info = CreateRootDirectoryInfo(di);
+                    info = NewRootDirectoryInfo(di);
                     if (info.Attributes.HasFlag(FileAttributes.Hidden) && !Options.ServeHidden)
                         return false;
 
@@ -104,13 +135,13 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
                 return false;
             }
 
-            if (segments.Any(s => s.Contains("..") || ReservedFileNames.Contains(s)))
+            if (segments.Any(s => s.Contains("..") || _reservedFileNames.Contains(s)))
                 return false;
 
             string path = Path.Combine(RootPath, Path.Combine(segments));
             if (Extensions.FileExists(path))
             {
-                info = CreateFileInfo(new FileInfo(path));
+                info = NewFileInfo(new FileInfo(path));
                 if (info.Attributes.HasFlag(FileAttributes.Hidden) && !Options.ServeHidden)
                     return false;
 
@@ -119,7 +150,7 @@ namespace AmalgaDrive.DavServer.FileSystem.Local
 
             if (Extensions.DirectoryExists(path))
             {
-                info = CreateDirectoryInfo(new DirectoryInfo(path));
+                info = NewDirectoryInfo(new DirectoryInfo(path));
                 if (info.Attributes.HasFlag(FileAttributes.Hidden) && !Options.ServeHidden)
                     return false;
 

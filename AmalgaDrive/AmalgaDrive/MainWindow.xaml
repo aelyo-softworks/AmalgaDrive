@@ -1,36 +1,78 @@
-﻿<Window x:Class="AmalgaDrive.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:md="clr-namespace:MaterialDesignIcons"
-        xmlns:local="clr-namespace:AmalgaDrive"
-        mc:Ignorable="d"
-        Title="Amalga Drive" Height="450" Width="800" MinWidth="300" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize">
+﻿<Window
+    x:Class="AmalgaDrive.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:AmalgaDrive"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:md="clr-namespace:MaterialDesignIcons"
+    Title="Amalga Drive"
+    Width="800"
+    Height="450"
+    MinWidth="300"
+    ResizeMode="CanResize"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="None"
+    mc:Ignorable="d">
     <Grid Margin="5,0,5,5">
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <DockPanel Background="{StaticResource BackColor}" Name="CaptionBar" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown">
-            <Menu IsMainMenu="True" FontFamily="{StaticResource MainFont}">
-                <MenuItem Header="_File" Template="{StaticResource VsMenuTop}" >
-                    <MenuItem Header="_Add a Cloud Drive..." Template="{StaticResource VsMenuSub}" Name="AddDrive" Click="AddDrive_Click" />
+        <DockPanel
+            Name="CaptionBar"
+            Background="{StaticResource BackColor}"
+            MouseLeftButtonDown="DockPanel_MouseLeftButtonDown">
+            <Menu FontFamily="{StaticResource MainFont}" IsMainMenu="True">
+                <MenuItem Header="_File" Template="{StaticResource VsMenuTop}">
+                    <MenuItem
+                        Name="AddDrive"
+                        Click="AddDrive_Click"
+                        Header="_Add a Cloud Drive..."
+                        Template="{StaticResource VsMenuSub}" />
                     <Separator Template="{StaticResource VsMenuSep}" />
-                    <MenuItem Header="_Close / Minimize" Template="{StaticResource VsMenuSub}" Name="FileMinimize" Click="Minimize_Click" />
+                    <MenuItem
+                        Name="FileMinimize"
+                        Click="Minimize_Click"
+                        Header="_Close / Minimize"
+                        Template="{StaticResource VsMenuSub}" />
                     <Separator Template="{StaticResource VsMenuSep}" />
-                    <MenuItem Header="_Pause Synchronization and Quit" Template="{StaticResource VsMenuSub}" Name="FileExit" Click="FileExit_Click" />
+                    <MenuItem
+                        Name="FileExit"
+                        Click="FileExit_Click"
+                        Header="_Pause Synchronization and Quit"
+                        Template="{StaticResource VsMenuSub}" />
                 </MenuItem>
                 <MenuItem Header="_Tools" Template="{StaticResource VsMenuTop}">
                     <!--<MenuItem Header="_Settings" Template="{StaticResource VsMenuSub}" Name="ToolsOptions" Click="Options_Click" />-->
-                    <MenuItem Header="_Logs" Template="{StaticResource VsMenuSub}" Name="Logs" Click="Logs_Click" />
+                    <MenuItem
+                        Name="Logs"
+                        Click="Logs_Click"
+                        Header="_Logs"
+                        Template="{StaticResource VsMenuSub}" />
                     <Separator Template="{StaticResource VsMenuSep}" />
-                    <MenuItem Header="_Restart Explorer" Template="{StaticResource VsMenuSub}" Name="RestartExplorer" Click="RestartExplorer_Click" />
-                    <MenuItem Header="_Unregister AmalgaDrive" Template="{StaticResource VsMenuSub}" Name="Unregister" Click="Unregister_Click" />
+                    <MenuItem
+                        Name="RestartExplorer"
+                        Click="RestartExplorer_Click"
+                        Header="_Restart Explorer"
+                        Template="{StaticResource VsMenuSub}" />
+                    <MenuItem
+                        Name="Unregister"
+                        Click="Unregister_Click"
+                        Header="_Unregister AmalgaDrive"
+                        Template="{StaticResource VsMenuSub}" />
                     <Separator Template="{StaticResource VsMenuSep}" />
-                    <MenuItem Header="_Open Configuration Path" Template="{StaticResource VsMenuSub}" Name="OpenConfig" Click="OpenConfig_Click" />
+                    <MenuItem
+                        Name="OpenConfig"
+                        Click="OpenConfig_Click"
+                        Header="_Open Configuration Path"
+                        Template="{StaticResource VsMenuSub}" />
                 </MenuItem>
-                <MenuItem Header="_Help" Template="{StaticResource VsMenuTop}" Name="HelpAbout" Click="HelpAbout_Click">
+                <MenuItem
+                    Name="HelpAbout"
+                    Click="HelpAbout_Click"
+                    Header="_Help"
+                    Template="{StaticResource VsMenuTop}">
                     <MenuItem Header="_About..." Template="{StaticResource VsMenuSub}" />
                 </MenuItem>
             </Menu>
@@ -39,21 +81,43 @@
                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Settings}" />
                 </Button>
                 <Border Background="White" Width="1" />-->
-                <Button Style="{StaticResource BoxButton}" ToolTip="Close" Name="Minimize" Margin="5,0,5,0" Click="Minimize_Click">
+                <Button
+                    Name="Minimize"
+                    Margin="5,0,5,0"
+                    Click="Minimize_Click"
+                    Style="{StaticResource BoxButton}"
+                    ToolTip="Close">
                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.WindowMinimize}" />
                 </Button>
-                <Button Visibility="{Binding MaximizeVisibility}" Style="{StaticResource BoxButton}" ToolTip="Maximize" Name="Maximize" Click="Maximize_Click">
+                <Button
+                    Name="Maximize"
+                    Click="Maximize_Click"
+                    Style="{StaticResource BoxButton}"
+                    ToolTip="Maximize"
+                    Visibility="{Binding MaximizeVisibility}">
                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.WindowMaximize}" />
                 </Button>
-                <Button Visibility="{Binding RestoreVisibility}" Style="{StaticResource BoxButton}" ToolTip="Restore" Name="Restore" Click="Restore_Click">
+                <Button
+                    Name="Restore"
+                    Click="Restore_Click"
+                    Style="{StaticResource BoxButton}"
+                    ToolTip="Restore"
+                    Visibility="{Binding RestoreVisibility}">
                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.WindowRestore}" />
                 </Button>
-                <Button Style="{StaticResource BoxButton}" ToolTip="Stop Synchronization and Quit" Name="Quit" Click="FileExit_Click">
+                <Button
+                    Name="Quit"
+                    Click="FileExit_Click"
+                    Style="{StaticResource BoxButton}"
+                    ToolTip="Stop Synchronization and Quit">
                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Power}" />
                 </Button>
             </DockPanel>
         </DockPanel>
-        <ListView Grid.Row="1" Name="Drives" MouseDoubleClick="Drives_MouseDoubleClick">
+        <ListView
+            Name="Drives"
+            Grid.Row="1"
+            MouseDoubleClick="Drives_MouseDoubleClick">
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Style.Triggers>
@@ -78,18 +142,29 @@
             </ListView.Resources>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Icon" Width="42">
+                    <GridViewColumn Width="42" Header="Icon">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding Icon}" Width="32" />
+                                <Image Width="32" Source="{Binding Icon}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Name" Width="120" DisplayMemberBinding="{Binding Name}" />
-                    <GridViewColumn Header="Synchronization State" Width="42">
+                    <GridViewColumn
+                        Width="120"
+                        DisplayMemberBinding="{Binding Name}"
+                        Header="Name" />
+                    <GridViewColumn Width="42" Header="Synchronization State">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" Name="Synchronize" Click="Synchronize_Click" Foreground="Green" ToolTip="{Binding SynchronizingText}">
+                                <Button
+                                    Name="Synchronize"
+                                    Width="20"
+                                    Margin="0"
+                                    Background="Transparent"
+                                    Click="Synchronize_Click"
+                                    Foreground="Green"
+                                    Style="{StaticResource BoxButton}"
+                                    ToolTip="{Binding SynchronizingText}">
                                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Sync}">
                                         <TextBlock.Style>
                                             <Style TargetType="{x:Type TextBlock}">
@@ -103,7 +178,12 @@
                                                         <DataTrigger.EnterActions>
                                                             <BeginStoryboard Name="Rotate">
                                                                 <Storyboard>
-                                                                    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle" From="360" To="0" Duration="0:0:3" RepeatBehavior="Forever" />
+                                                                    <DoubleAnimation
+                                                                        RepeatBehavior="Forever"
+                                                                        Storyboard.TargetProperty="RenderTransform.Angle"
+                                                                        From="360"
+                                                                        To="0"
+                                                                        Duration="0:0:3" />
                                                                 </Storyboard>
                                                             </BeginStoryboard>
                                                         </DataTrigger.EnterActions>
@@ -119,44 +199,72 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Path" >
+                    <GridViewColumn Header="Path">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding RootPath}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Open Path" Width="42">
+                    <GridViewColumn Width="42" Header="Open Path">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Open Path" Name="OpenPath" Click="OpenPath_Click">
+                                <Button
+                                    Name="OpenPath"
+                                    Width="20"
+                                    Margin="0"
+                                    Background="Transparent"
+                                    Click="OpenPath_Click"
+                                    Style="{StaticResource BoxButton}"
+                                    ToolTip="Open Path in Windows Explorer">
                                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.OpenInNew}" />
                                 </Button>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Open Extension" Width="42">
+                    <GridViewColumn Width="42" Header="Open Extension">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Open Extension" Name="OpenExtension" Click="OpenExtension_Click">
+                                <Button
+                                    Name="OpenExtension"
+                                    Width="20"
+                                    Margin="0"
+                                    Background="Transparent"
+                                    Click="OpenExtension_Click"
+                                    Style="{StaticResource BoxButton}"
+                                    ToolTip="Open Extension in Windows Explorer">
                                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.FolderOpen}" />
                                 </Button>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Edit" Width="42">
+                    <GridViewColumn Width="42" Header="Edit">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Edit Service" Name="Edit" Click="Edit_Click">
+                                <Button
+                                    Name="Edit"
+                                    Width="20"
+                                    Margin="0"
+                                    Background="Transparent"
+                                    Click="Edit_Click"
+                                    Style="{StaticResource BoxButton}"
+                                    ToolTip="Edit Service">
                                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Pencil}" />
                                 </Button>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Remove" Width="42">
+                    <GridViewColumn Width="42" Header="Remove">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Margin="0" Width="20" Background="Transparent" Style="{StaticResource BoxButton}" ToolTip="Remove Service" Name="Remove" Click="DeleteService_Click">
+                                <Button
+                                    Name="Remove"
+                                    Width="20"
+                                    Margin="0"
+                                    Background="Transparent"
+                                    Click="DeleteService_Click"
+                                    Style="{StaticResource BoxButton}"
+                                    ToolTip="Remove Service">
                                     <TextBlock Text="{x:Static md:MaterialDesignStringIcons.Delete}" />
                                 </Button>
                             </DataTemplate>

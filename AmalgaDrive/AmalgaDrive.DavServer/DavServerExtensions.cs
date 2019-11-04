@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using AmalgaDrive.DavServer.FileSystem;
 using AmalgaDrive.DavServer.FileSystem.Local;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ namespace AmalgaDrive.DavServer
         public const string MsNamespacePrefix = "Z";
         public const int MultiStatusCode = 207;
 
-        public static void AddDavServer(this IServiceCollection services, IConfiguration configuration, Action<DavServerOptions> setupAction = null)
+        public static void AddFileSystem(this IServiceCollection services, IConfiguration configuration, Action<DavServerOptions> setupAction = null)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
@@ -39,10 +40,20 @@ namespace AmalgaDrive.DavServer
                 if (!(Activator.CreateInstance(Type.GetType(typeName, true)) is IFileSystem fs))
                     throw new DavServerException("0003: Type '" + typeName + "' is not an " + nameof(IFileSystem) + ".");
 
-                var dic = configuration.GetSection(DavServerConfigPath + "Properties").GetChildren().ToDictionary(c1 => c1.Key, c2 => c2.Value);
-                fs.Initialize(setupAction, dic);
+                fs.Initialize(setupAction, GetProperties(configuration));
                 return fs;
             });
+        }
+
+        private static IDictionary<string, string> GetProperties(IConfiguration configuration) => configuration.GetSection(DavServerConfigPath + "Properties").GetChildren().ToDictionary(c1 => c1.Key, c2 => c2.Value);
+
+        public static DirectoryBrowserOptions GetFileSystemDirectoryBrowserOptions(this IConfiguration configuration)
+        {
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            // only supported impl is for LocalFileSystem
+            return LocalFileSystem.GetDirectoryBrowserOptions(GetProperties(configuration));
         }
 
         public static string GetContentType(this IFileSystemInfo info)
@@ -125,7 +136,7 @@ namespace AmalgaDrive.DavServer
                 }
             }
 
-            // infinity is not supported (no recursion)
+            // infinity is not supported (no deep recursion)
         }
 
         public static bool Translate(this HttpRequest request)

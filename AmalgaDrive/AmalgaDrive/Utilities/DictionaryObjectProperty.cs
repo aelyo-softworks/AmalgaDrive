@@ -1,5 +1,4 @@
-﻿
-namespace AmalgaDrive.Utilities
+﻿namespace AmalgaDrive.Utilities
 {
     public class DictionaryObjectProperty
     {

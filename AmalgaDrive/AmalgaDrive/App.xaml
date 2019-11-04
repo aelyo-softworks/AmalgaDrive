@@ -1,8 +1,9 @@
-﻿<Application x:Class="AmalgaDrive.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:AmalgaDrive"
-             StartupUri="MainWindow.xaml">
+﻿<Application
+    x:Class="AmalgaDrive.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:AmalgaDrive"
+    StartupUri="MainWindow.xaml">
     <Application.Resources>
         <FontFamily x:Key="MaterialDesign">resources/#material design icons</FontFamily>
         <FontFamily x:Key="MainFont">Segoe UI Bold</FontFamily>
@@ -25,7 +26,12 @@
                     <DataTrigger.EnterActions>
                         <BeginStoryboard Name="Rotate">
                             <Storyboard>
-                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle" From="0" To="360" Duration="0:0:8" RepeatBehavior="Forever" />
+                                <DoubleAnimation
+                                    RepeatBehavior="Forever"
+                                    Storyboard.TargetProperty="RenderTransform.Angle"
+                                    From="0"
+                                    To="360"
+                                    Duration="0:0:8" />
                             </Storyboard>
                         </BeginStoryboard>
                     </DataTrigger.EnterActions>
@@ -46,7 +52,7 @@
         <Style x:Key="FormTextBox" TargetType="TextBox">
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="True">
-                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -54,7 +60,7 @@
         <Style x:Key="FormComboBox" TargetType="ComboBox">
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="True">
-                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -71,13 +77,16 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Border x:Name="OuterBorder" Background="{StaticResource AccentColor}">
-                            <Border x:Name="InnerBorder" Background="{TemplateBinding Background}" Margin="0">
+                            <Border
+                                x:Name="InnerBorder"
+                                Margin="0"
+                                Background="{TemplateBinding Background}">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsDefault" Value="True">
-                                <Setter Property="BorderThickness" Value="2" TargetName="InnerBorder"  />
+                                <Setter TargetName="InnerBorder" Property="BorderThickness" Value="2" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -119,22 +128,33 @@
             </Style.Triggers>
         </Style>
 
-        <!-- style a top level menu item -->
+        <!--  style a top level menu item  -->
         <ControlTemplate x:Key="VsMenuTop" TargetType="MenuItem">
-            <StackPanel TextBlock.FontSize="15px" Height="35">
-                <!-- label, icons, etc. -->
-                <Label Content="{TemplateBinding Header}" Margin="5" Foreground="White" />
+            <StackPanel Height="35" TextBlock.FontSize="15px">
+                <!--  label, icons, etc.  -->
+                <Label
+                    Margin="5"
+                    Content="{TemplateBinding Header}"
+                    Foreground="White" />
 
-                <!-- sub items -->
-                <Popup IsOpen="{TemplateBinding IsSubmenuOpen}" Placement="RelativePoint" PlacementRectangle="0,35,0,0"  AllowsTransparency="True" Focusable="False">
-                    <Border BorderThickness="1" Background="White" BorderBrush="#E0E0E0">
+                <!--  sub items  -->
+                <Popup
+                    AllowsTransparency="True"
+                    Focusable="False"
+                    IsOpen="{TemplateBinding IsSubmenuOpen}"
+                    Placement="RelativePoint"
+                    PlacementRectangle="0,35,0,0">
+                    <Border
+                        Background="White"
+                        BorderBrush="#E0E0E0"
+                        BorderThickness="1">
                         <StackPanel IsItemsHost="True" />
                     </Border>
                 </Popup>
                 <StackPanel.Style>
                     <Style TargetType="StackPanel">
                         <Style.Triggers>
-                            <Trigger Property="IsMouseOver"  Value="True">
+                            <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#106EBE" />
                             </Trigger>
                         </Style.Triggers>
@@ -143,32 +163,42 @@
             </StackPanel>
         </ControlTemplate>
 
-        <!-- style a non-top level menu item -->
+        <!--  style a non-top level menu item  -->
         <ControlTemplate x:Key="VsMenuSub" TargetType="MenuItem">
-            <DockPanel TextBlock.FontSize="15px" x:Name="panel">
-                <!-- label, icons, etc. -->
-                <Label Content="{TemplateBinding Header}" Foreground="Black" Margin="5,0,5,0" />
+            <DockPanel x:Name="panel" TextBlock.FontSize="15px">
+                <!--  label, icons, etc.  -->
+                <Label
+                    Margin="5,0,5,0"
+                    Content="{TemplateBinding Header}"
+                    Foreground="Black" />
 
-                <!-- sub items -->
-                <Popup IsOpen="{TemplateBinding IsSubmenuOpen}" AllowsTransparency="True" Focusable="False" Placement="Right" >
-                    <Border BorderThickness="1" Background="White" BorderBrush="#E0E0E0">
+                <!--  sub items  -->
+                <Popup
+                    AllowsTransparency="True"
+                    Focusable="False"
+                    IsOpen="{TemplateBinding IsSubmenuOpen}"
+                    Placement="Right">
+                    <Border
+                        Background="White"
+                        BorderBrush="#E0E0E0"
+                        BorderThickness="1">
                         <StackPanel IsItemsHost="True" />
                     </Border>
                 </Popup>
             </DockPanel>
             <ControlTemplate.Triggers>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" TargetName="panel" Value="#EFF6FC" />
+                    <Setter TargetName="panel" Property="Background" Value="#EFF6FC" />
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
-        <!-- style the separator -->
+        <!--  style the separator  -->
         <ControlTemplate x:Key="VsMenuSep" TargetType="Separator">
             <Border Height="1" Background="#E0E0E0" />
         </ControlTemplate>
 
-        <!-- some base stuff -->
+        <!--  some base stuff  -->
         <Style TargetType="Menu">
             <Setter Property="Background" Value="{StaticResource BackColor}" />
             <Setter Property="Height" Value="40px" />

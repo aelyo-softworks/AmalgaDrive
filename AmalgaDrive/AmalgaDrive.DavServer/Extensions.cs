@@ -11,6 +11,9 @@ namespace AmalgaDrive.DavServer
 
         public static bool FileExists(string path)
         {
+            if (path == null)
+                return false;
+
             try
             {
                 return File.Exists(path);
@@ -23,6 +26,9 @@ namespace AmalgaDrive.DavServer
 
         public static bool DirectoryExists(string path)
         {
+            if (path == null)
+                return false;
+
             try
             {
                 return Directory.Exists(path);
@@ -31,6 +37,24 @@ namespace AmalgaDrive.DavServer
             {
                 return false;
             }
+        }
+
+        public static bool EnsureFileDirectory(string filePath)
+        {
+            if (filePath == null)
+                throw new ArgumentNullException(nameof(filePath));
+
+            if (!Path.IsPathRooted(filePath))
+            {
+                filePath = Path.GetFullPath(filePath);
+            }
+
+            string dir = Path.GetDirectoryName(filePath);
+            if (dir == null || Directory.Exists(dir))
+                return false;
+
+            Directory.CreateDirectory(dir);
+            return true;
         }
 
         public static void CopyDirectory(string source, string target)
