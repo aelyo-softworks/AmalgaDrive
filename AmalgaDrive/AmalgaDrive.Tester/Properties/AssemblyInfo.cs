@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("A tester for AmalgaDrive.")]
 [assembly: AssemblyCompany("Aelyo Softworks")]
 [assembly: AssemblyProduct("Amalga Drive")]
-[assembly: AssemblyCopyright("Copyright (C) 2017-2019 Aelyo Softworks. All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright (C) 2017-2021 Aelyo Softworks. All rights reserved.")]
 [assembly: AssemblyTrademark("AmalgaDrive (TM) is a trademark of Aelyo Softworks.")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
