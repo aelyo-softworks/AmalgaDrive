@@ -1371,7 +1371,7 @@
         </member>
         <member name="P:ShellBoost.Core.GetFileDialogPropertiesEventArgs.Properties">
             <summary>
-            Gets or sets the properties.
+            Gets or sets the properties that the native proxy should retrive from the dialog box.
             </summary>
             <value>
             The properties.
@@ -2508,9 +2508,9 @@
         </member>
         <member name="P:ShellBoost.Core.FileDialogEventArgs.Hwnd">
             <summary>
-            Gets the owner window handle.
+            Gets the dialog box window handle.
             </summary>
-            <value>The owner window handle.</value>
+            <value>The dialog box window handle.</value>
         </member>
         <member name="P:ShellBoost.Core.FileDialogEventArgs.FolderIdList">
             <summary>
@@ -2551,8 +2551,9 @@
         <member name="P:ShellBoost.Core.FileDialogEventArgs.FileTypeIndex">
             <summary>
             Gets the currently selected file type.
+            This is only valid for Common Dialog boxes.
             </summary>
-            <value>The currently selected file type.</value>
+            <value>The currently selected file type or -1 if nothing was selected.</value>
         </member>
         <member name="P:ShellBoost.Core.FileDialogEventArgs.FileName">
             <summary>
@@ -2561,27 +2562,39 @@
             </summary>
             <value>The file name.</value>
         </member>
+        <member name="P:ShellBoost.Core.FileDialogEventArgs.IsCommonDialog">
+            <summary>
+            Gets a value indicating whether this instance represents an event from a Common Dialog box or a custom Dialog box.
+            </summary>
+            <value>
+              <c>true</c> if this instance represents an event from a Common Dialog box; otherwise, <c>false</c>.
+            </value>
+        </member>
         <member name="P:ShellBoost.Core.FileDialogEventArgs.IsFileSave">
             <summary>
             The context is a File Save dialog.
+            This is only valid for Common Dialog boxes.
             </summary>
             <value>true if the context is a File Save dialog; false otherwise.</value>
         </member>
         <member name="P:ShellBoost.Core.FileDialogEventArgs.IsFolderPicker">
             <summary>
             The context is a Folder Picker dialog.
+            This is only valid for Common Dialog boxes.
             </summary>
             <value>true if the context is a Folder Picker dialog; false otherwise.</value>
         </member>
         <member name="P:ShellBoost.Core.FileDialogEventArgs.Options">
             <summary>
             Gets the current flags that are set to control dialog behavior.
+            This is only valid for Common Dialog boxes.
             </summary>
             <value>The options.</value>
         </member>
         <member name="P:ShellBoost.Core.FileDialogEventArgs.ViewFlags">
             <summary>
             Gets the view flags.
+            This is only valid for Common Dialog boxes.
             </summary>
             <value>The view flags.</value>
         </member>
@@ -2650,22 +2663,17 @@
             Only raised if Common Dialog hooks are enabled.
             </summary>
         </member>
-        <member name="F:ShellBoost.Core.FileDialogEventType.OnClose">
-            <summary>
-            Called when the window is closed.
-            Only raised if Common Dialog hooks are enabled.
-            </summary>
-        </member>
         <member name="F:ShellBoost.Core.FileDialogEventType.OnClosed">
             <summary>
-            Called when ShellBoost stops monitoring the Common Dialog.
-            Only raised if Common Dialog hooks are enabled.
+            Called when the native window is closed or destroyed.
+            Only raised if hooks are enabled.
             </summary>
         </member>
         <member name="F:ShellBoost.Core.FileDialogEventType.OnOpened">
             <summary>
-            Called when ShellBoost starts monitoring the Common Dialog.
-            Only raised if Common Dialog hooks are enabled.
+            Called when ShellBoost starts monitoring a native window.
+            Only raised if hooks are enabled.
+            Note that if any dialog box hooks are enabled, this event can be raised twice.
             </summary>
         </member>
         <member name="T:ShellBoost.Core.FileShellContent">
@@ -7234,12 +7242,12 @@
         </member>
         <member name="E:ShellBoost.Core.ShellFolder.MergingContextMenu">
             <summary>
-            Raised when event are received from a Common Dialog.
+            Raised when a context menu is merging.
             </summary>
         </member>
         <member name="E:ShellBoost.Core.ShellFolder.FileDialogEvent">
             <summary>
-            Raised when event are received from a Common Dialog.
+            Raised when event are received from a Dialog Box.
             </summary>
         </member>
         <member name="E:ShellBoost.Core.ShellFolder.GetFolderSettings">
@@ -7788,7 +7796,7 @@
         </member>
         <member name="M:ShellBoost.Core.ShellFolder.OnFileDialogEvent(System.Object,ShellBoost.Core.FileDialogEventArgs)">
             <summary>
-            Called when a notification is sent by a Common Dialog
+            Called when a notification is sent by a Dialog Box.
             </summary>
             <param name="sender">The sender.</param>
             <param name="e">The <see cref="T:ShellBoost.Core.FileDialogEventArgs"/> instance containing the event data.</param>
@@ -8068,7 +8076,9 @@
         </member>
         <member name="F:ShellBoost.Core.ShellFolderInitializationOptions.NoCommonDialogsHook">
             <summary>
-            Disable Common Dialogs hook.
+            Disable Common Dialogs Boxes hook.
+            Common Dialog Boxes hooks are only tried in Common Dialog Boxes context.
+            Common Dialog Boxes hooks can fail if the native proxy is not hosted by a Common Dialog Box.
             </summary>
         </member>
         <member name="F:ShellBoost.Core.ShellFolderInitializationOptions.NoContextMenuWrapper">
@@ -8081,6 +8091,11 @@
             <summary>
             Add this folder as an extra input to the Explorer's tree view context menu.
             Note this may cause duplicate items if these items don't have an associated verb to disambiguate them.
+            </summary>
+        </member>
+        <member name="F:ShellBoost.Core.ShellFolderInitializationOptions.HookAnyParentDialogBox">
+            <summary>
+            Hook any parent dialog box. By default, the native proxy will only hook parent Common Dialog boxes.
             </summary>
         </member>
         <member name="T:ShellBoost.Core.ShellFolderRegistration">
@@ -8377,6 +8392,14 @@
             Don't use this member if you are hosting multiple ShellBoost native proxies, but use the NativeProxy instance member instead.
             </summary>
             <value>The root identifier list. Null for non-rooted extensions.</value>
+        </member>
+        <member name="P:ShellBoost.Core.ShellFolderServer.DefaultFolderInitializationOptions">
+            <summary>
+            Gets or sets the default folder initialization options.
+            </summary>
+            <value>
+            The default folder initialization options.
+            </value>
         </member>
         <member name="E:ShellBoost.Core.ShellFolderServer.Licensing">
             <summary>
@@ -11226,6 +11249,7 @@
         <member name="M:ShellBoost.Core.Synchronization.OnDemandLocalFileSystem.UpdateAllEntriesStates(System.Boolean)">
             <summary>
             Updates all entries on-demand states.
+            This must be called only when the MultiPointSynchronizer is started.
             </summary>
             <param name="throwOnError">true to throw error; otherwise false.</param>
         </member>
@@ -13029,7 +13053,7 @@
             Gets an entry using its identifier.
             </summary>
             <param name="synchronizer">The synchronizer.</param>
-            <param name="entryId">The entry identifier.</param>
+            <param name="entryId">The entry identifier. Cannot be null and cannot be the root identifier.</param>
             <returns>An entry instance or null if no entry was found.</returns>
         </member>
         <member name="M:ShellBoost.Core.Synchronization.ISyncStateProvider.EnumerateChanges">
@@ -13944,6 +13968,16 @@
               <c>true</c> if direct content access is enabled; otherwise, <c>false</c>.
             </value>
         </member>
+        <member name="M:ShellBoost.Core.Synchronization.EndPointSynchronizer.Start">
+            <summary>
+            Called by the MultiPointSynchronizer when it starts.
+            </summary>
+        </member>
+        <member name="M:ShellBoost.Core.Synchronization.EndPointSynchronizer.Stop">
+            <summary>
+            Called by the MultiPointSynchronizer when it stops.
+            </summary>
+        </member>
         <member name="M:ShellBoost.Core.Synchronization.EndPointSynchronizer.StartEventMonitoring">
             <summary>
             Starts the event monitoring.
@@ -14421,6 +14455,26 @@
             Occurs when a job has changed.
             </summary>
         </member>
+        <member name="E:ShellBoost.Core.Synchronization.MultiPointSynchronizer.Starting">
+            <summary>
+            Occurs when this instance is starting.
+            </summary>
+        </member>
+        <member name="E:ShellBoost.Core.Synchronization.MultiPointSynchronizer.Started">
+            <summary>
+            Occurs when this instance has started.
+            </summary>
+        </member>
+        <member name="E:ShellBoost.Core.Synchronization.MultiPointSynchronizer.Stopping">
+            <summary>
+            Occurs when this instance is stopping.
+            </summary>
+        </member>
+        <member name="E:ShellBoost.Core.Synchronization.MultiPointSynchronizer.Stopped">
+            <summary>
+            Occurs when this instance has stopped.
+            </summary>
+        </member>
         <member name="M:ShellBoost.Core.Synchronization.MultiPointSynchronizer.#ctor(System.String,ShellBoost.Core.Synchronization.ISyncStateProvider,ShellBoost.Core.Synchronization.MultiPointSynchronizerOptions)">
             <summary>
             Initializes a new instance of the <see cref="T:ShellBoost.Core.Synchronization.MultiPointSynchronizer"/> class.
@@ -14535,6 +14589,14 @@
             The last job creation date.
             </value>
         </member>
+        <member name="P:ShellBoost.Core.Synchronization.MultiPointSynchronizer.NoJobCreatedRunCount">
+            <summary>
+            Gets or sets the number of times the job building creation pass hasn't created any job.
+            </summary>
+            <value>
+            The number of times the job building creation pass hasn't created any job.
+            </value>
+        </member>
         <member name="M:ShellBoost.Core.Synchronization.MultiPointSynchronizer.Log(System.Diagnostics.TraceLevel,System.Object,System.String)">
             <summary>
             Logs the value at the specified trace level.
@@ -14542,6 +14604,34 @@
             <param name="level">The trace level.</param>
             <param name="value">The value.</param>
             <param name="methodName">The calling method name.</param>
+        </member>
+        <member name="M:ShellBoost.Core.Synchronization.MultiPointSynchronizer.OnStarting(System.Object,System.EventArgs)">
+            <summary>
+            Called when this instance is starting.
+            </summary>
+            <param name="sender">The sender.</param>
+            <param name="e">The <see cref="T:System.EventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:ShellBoost.Core.Synchronization.MultiPointSynchronizer.OnStarted(System.Object,System.EventArgs)">
+            <summary>
+            Called when this instance has started.
+            </summary>
+            <param name="sender">The sender.</param>
+            <param name="e">The <see cref="T:System.EventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:ShellBoost.Core.Synchronization.MultiPointSynchronizer.OnStopping(System.Object,System.EventArgs)">
+            <summary>
+            Called when this instance is stopping.
+            </summary>
+            <param name="sender">The sender.</param>
+            <param name="e">The <see cref="T:System.EventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:ShellBoost.Core.Synchronization.MultiPointSynchronizer.OnStopped(System.Object,System.EventArgs)">
+            <summary>
+            Called when this instance has stopped.
+            </summary>
+            <param name="sender">The sender.</param>
+            <param name="e">The <see cref="T:System.EventArgs"/> instance containing the event data.</param>
         </member>
         <member name="M:ShellBoost.Core.Synchronization.MultiPointSynchronizer.OnJobChanged(System.Object,ShellBoost.Core.Synchronization.SyncJobChangedEventArgs)">
             <summary>
@@ -14576,6 +14666,16 @@
         <member name="M:ShellBoost.Core.Synchronization.MultiPointSynchronizer.UpdateEndPoints">
             <summary>
             Updates all endpoints states.
+            </summary>
+        </member>
+        <member name="M:ShellBoost.Core.Synchronization.MultiPointSynchronizer.StartEndPoints">
+            <summary>
+            Starts all endpoints.
+            </summary>
+        </member>
+        <member name="M:ShellBoost.Core.Synchronization.MultiPointSynchronizer.StopEndPoints">
+            <summary>
+            Stops all endpoints.
             </summary>
         </member>
         <member name="M:ShellBoost.Core.Synchronization.MultiPointSynchronizer.StartEndPointsEventMonitoring">
@@ -16018,6 +16118,26 @@
             </summary>
             <returns>A list of bitmaps.</returns>
         </member>
+        <member name="M:ShellBoost.Core.Utilities.ComServer.CreateInstance(System.Guid,ShellBoost.Core.WindowsShell.CLSCTX,System.Boolean)">
+            <summary>
+            Creates an instance of this object.
+            </summary>
+            <param name="iid">The requested COM interface identifier.</param>
+            <param name="context">The context.</param>
+            <param name="throwOnError">if set to <c>true</c> errors may be throw.</param>
+            <returns>
+            An instance of the COM object or null of an error occurred.
+            </returns>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.ComServer.CreateInstance``1(ShellBoost.Core.WindowsShell.CLSCTX,System.Boolean)">
+            <summary>
+            Creates an instance of this object.
+            </summary>
+            <typeparam name="T">The expected type.</typeparam>
+            <param name="context">The context.</param>
+            <param name="throwOnError">if set to <c>true</c> errors may be throw.</param>
+            <returns>A typed instance of the COM object or the default value.</returns>
+        </member>
         <member name="M:ShellBoost.Core.Utilities.ComServer.ToString">
             <summary>
             Converts to string.
@@ -16530,7 +16650,7 @@
         </member>
         <member name="T:ShellBoost.Core.Utilities.FolderPicker">
             <summary>
-            Represents a common dialog box that allows a user to specify a folder to pick.
+            Represents a Common Dialog Box that allows a user to specify a folder to pick.
             </summary>
         </member>
         <member name="P:ShellBoost.Core.Utilities.FolderPicker.Result">
@@ -16634,6 +16754,11 @@
             Transform cut &amp; paste operation into rename.
             </summary>
         </member>
+        <member name="F:ShellBoost.Core.Utilities.LocalFileSystemWatcherSynthetizeOptions.CreateFolderWithChildren">
+            <summary>
+            If a folder is created and has children, send children creation events too.
+            </summary>
+        </member>
         <member name="F:ShellBoost.Core.Utilities.LocalFileSystemWatcherSynthetizeOptions.All">
             <summary>
             All options.
@@ -16703,6 +16828,36 @@
             </summary>
             <param name="original">Any old palette, this is overrwritten</param>
             <returns>The new color palette</returns>
+        </member>
+        <member name="T:ShellBoost.Core.Utilities.PHCM">
+            <summary>
+            Defines the placeholder compatibility mode.
+            </summary>
+        </member>
+        <member name="F:ShellBoost.Core.Utilities.PHCM.PHCM_APPLICATION_DEFAULT">
+            <summary>
+            The application default.
+            </summary>
+        </member>
+        <member name="F:ShellBoost.Core.Utilities.PHCM.PHCM_DISGUISE_PLACEHOLDERS">
+            <summary>
+            Placeholders are disguised.
+            </summary>
+        </member>
+        <member name="F:ShellBoost.Core.Utilities.PHCM.PHCM_EXPOSE_PLACEHOLDERS">
+            <summary>
+            Placeholders are exposed.
+            </summary>
+        </member>
+        <member name="F:ShellBoost.Core.Utilities.PHCM.PHCM_ERROR_INVALID_PARAMETER">
+            <summary>
+            A parameter was invalid.
+            </summary>
+        </member>
+        <member name="F:ShellBoost.Core.Utilities.PHCM.PHCM_ERROR_NO_TEB">
+            <summary>
+            No TEB.
+            </summary>
         </member>
         <member name="T:ShellBoost.Core.Utilities.Quantizer">
             <summary>
@@ -19078,8 +19233,7 @@
             </summary>
             <param name="bytes">The input bytes.</param>
             <param name="prefix">The prefix.</param>
-            <returns>A string.</returns>
-            <exception cref="T:System.ArgumentNullException">bytes is null.</exception>
+            <returns>A string or null.</returns>
         </member>
         <member name="M:ShellBoost.Core.Utilities.Conversions.ToHexaDump(System.IntPtr,System.Int32)">
             <summary>
@@ -19087,8 +19241,7 @@
             </summary>
             <param name="ptr">The buffer pointer.</param>
             <param name="count">The count.</param>
-            <returns>A string.</returns>
-            <exception cref="T:System.ArgumentNullException">ptr is zero.</exception>
+            <returns>A string or null.</returns>
         </member>
         <member name="M:ShellBoost.Core.Utilities.Conversions.ToHexaDump(System.IntPtr,System.Int32,System.Int32,System.String,System.Boolean)">
             <summary>
@@ -19099,8 +19252,7 @@
             <param name="count">The count.</param>
             <param name="prefix">The prefix.</param>
             <param name="addHeader">if set to <c>true</c> an header will be added.</param>
-            <returns>A string.</returns>
-            <exception cref="T:System.ArgumentNullException">ptr is zero.</exception>
+            <returns>A string or null.</returns>
         </member>
         <member name="M:ShellBoost.Core.Utilities.Conversions.ToHexaDump(System.Byte[],System.Int32)">
             <summary>
@@ -19108,8 +19260,7 @@
             </summary>
             <param name="bytes">The input bytes.</param>
             <param name="count">The count.</param>
-            <returns>A string.</returns>
-            <exception cref="T:System.ArgumentNullException">bytes is null.</exception>
+            <returns>A string or null.</returns>
         </member>
         <member name="M:ShellBoost.Core.Utilities.Conversions.ToHexaDump(System.Byte[],System.Int32,System.Int32,System.String,System.Boolean)">
             <summary>
@@ -19120,8 +19271,7 @@
             <param name="count">The count.</param>
             <param name="prefix">The prefix.</param>
             <param name="addHeader">if set to <c>true</c> an header will be added.</param>
-            <returns>A string.</returns>
-            <exception cref="T:System.ArgumentNullException">bytes is null.</exception>
+            <returns>A string or null.</returns>
         </member>
         <member name="M:ShellBoost.Core.Utilities.Conversions.SplitToList``1(System.String,System.Char[])">
             <summary>
@@ -20508,6 +20658,22 @@
             Provides properties and instance methods for file and directory handling.
             </summary>
         </member>
+        <member name="P:ShellBoost.Core.Utilities.FileSystemEntry.ThreadPlaceholderCompatibilityMode">
+            <summary>
+            Gets or sets the thread placeholder compatibility mode.
+            </summary>
+            <value>
+            The thread placeholder compatibility mode.
+            </value>
+        </member>
+        <member name="P:ShellBoost.Core.Utilities.FileSystemEntry.ProcessPlaceholderCompatibilityMode">
+            <summary>
+            Gets or sets the process placeholder compatibility mode.
+            </summary>
+            <value>
+            The process placeholder compatibility mode.
+            </value>
+        </member>
         <member name="P:ShellBoost.Core.Utilities.FileSystemEntry.Name">
             <summary>
             Gets the name.
@@ -20744,6 +20910,26 @@
             <param name="throwOnError">true to throw errors; otherwise false.</param>
             <returns>The Update Sequence Number (USN) or null if an error occured.</returns>
             <exception cref="T:System.ArgumentNullException">fullPath is null.</exception>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.FileSystemEntry.GetReparsePointData(System.String,System.Boolean)">
+            <summary>
+            Gets the reparse point data of a file or directory.
+            </summary>
+            <param name="fullPath">The full path.</param>
+            <param name="throwOnError">true to throw errors; otherwise false.</param>
+            <returns>The data.</returns>
+            <exception cref="T:System.ArgumentNullException">fullPath is null.</exception>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.FileSystemEntry.GetReparsePointData(System.IntPtr,System.Boolean)">
+            <summary>
+            Gets the reparse point data of a file or directory using its handle.
+            The handle must have been open using FILE_FLAG_OPEN_REPARSE_POINT flag.
+            </summary>
+            <param name="handle">The file or directory reparse point handle.</param>
+            <param name="throwOnError">true to throw errors; otherwise false.</param>
+            <returns>
+            The data or null.
+            </returns>
         </member>
         <member name="M:ShellBoost.Core.Utilities.FileSystemEntry.GetFullPath(System.String,System.Boolean)">
             <summary>
@@ -21049,6 +21235,17 @@
             <param name="unprotect">If set to true and the entry has the ReadOnly attribute, it will be removed before deletion.</param>
             <param name="throwOnError">true to throw errors; otherwise false.</param>
             <returns>true if the entry was deleted; otherwise false.</returns>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.FileSystemEntry.OpenReparsePointById(System.String,System.Guid,System.IO.FileAccess,System.IO.FileShare,System.Boolean)">
+            <summary>
+            Gets an entry using its 128-bit identifier.
+            </summary>
+            <param name="volumeGuid">The volume Guid.</param>
+            <param name="id">The entry identifier.</param>
+            <param name="access">A constant that determines how the file can be accessed by the FileStream object.</param>
+            <param name="share">A constant that determines how the file will be shared by processes.</param>
+            <param name="throwOnError">true to throw errors; otherwise false.</param>
+            <returns>A handle to the opened entry or IntPtr.Zero.</returns>
         </member>
         <member name="M:ShellBoost.Core.Utilities.FileSystemEntry.OpenById(System.String,System.Guid,System.IO.FileAccess,System.IO.FileShare,System.Boolean)">
             <summary>
@@ -22733,6 +22930,20 @@
             The size of the events buffer
             </value>
             <exception cref="T:System.ArgumentOutOfRangeException">value is lesser than 1024 * 64.</exception>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.LocalFileSystemWatcher.ToGuidId(System.UInt64)">
+            <summary>
+            Converts an UInt64 file identifier to a Guid file identifier.
+            </summary>
+            <param name="id">The UInt64 identifier.</param>
+            <returns>The Guid identifier.</returns>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.LocalFileSystemWatcher.ToUInt64Id(System.Guid)">
+            <summary>
+            Converts an Guid file identifier to a UInt64 file identifier.
+            </summary>
+            <param name="id">The Guid identifier.</param>
+            <returns>The Guid identifier.</returns>
         </member>
         <member name="M:ShellBoost.Core.Utilities.LocalFileSystemWatcher.Restart(System.Action)">
             <summary>
@@ -26692,10 +26903,24 @@
         </member>
         <member name="M:ShellBoost.Core.Utilities.Win32Window.FromPhysicalPoint(ShellBoost.Core.WindowsShell.POINT)">
             <summary>
-            Retrieves a handle to the window that contains the specified physical point.
+            Get the window that contains the specified physical point.
             </summary>
             <param name="point">The point to be checked.</param>
             <returns>A Win32Window instance or null.</returns>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.Win32Window.FromProcess(System.Int32)">
+            <summary>
+            Get a list of windows owned by the specified process.
+            </summary>
+            <param name="processId">The process identifier.</param>
+            <returns>A list of windows.</returns>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.Win32Window.FromProcess(System.Diagnostics.Process)">
+            <summary>
+            Get a list of windows owned by the specified process.
+            </summary>
+            <param name="process">The process instance.</param>
+            <returns>A list of windows.</returns>
         </member>
         <member name="M:ShellBoost.Core.Utilities.Win32Window.#ctor(System.IntPtr)">
             <summary>
@@ -26785,7 +27010,7 @@
         </member>
         <member name="P:ShellBoost.Core.Utilities.Win32Window.IsActive">
             <summary>
-            Gets a value indicating whether this instance is the active window
+            Gets a value indicating whether this instance is the active window.
             </summary>
             <value>
               <c>true</c> if this instance is the active window; otherwise, <c>false</c>.
@@ -26793,7 +27018,7 @@
         </member>
         <member name="P:ShellBoost.Core.Utilities.Win32Window.IsForeground">
             <summary>
-            Gets a value indicating whether this instance is the foreground window
+            Gets a value indicating whether this instance is the foreground window.
             </summary>
             <value>
               <c>true</c> if this instance is the foreground window; otherwise, <c>false</c>.
@@ -26801,10 +27026,18 @@
         </member>
         <member name="P:ShellBoost.Core.Utilities.Win32Window.IsFocus">
             <summary>
-            Gets a value indicating whether this instance is the focus window
+            Gets a value indicating whether this instance is the focus window.
             </summary>
             <value>
               <c>true</c> if this instance is the focus window; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:ShellBoost.Core.Utilities.Win32Window.IsDialog">
+            <summary>
+            Gets a value indicating whether this instance is a dialog box.
+            </summary>
+            <value>
+              <c>true</c> if this instance is a dialog box; otherwise, <c>false</c>.
             </value>
         </member>
         <member name="M:ShellBoost.Core.Utilities.Win32Window.IsEnabled">
@@ -26821,6 +27054,14 @@
             </summary>
             <value>
             The the name of the class to which this window belongs.
+            </value>
+        </member>
+        <member name="P:ShellBoost.Core.Utilities.Win32Window.RealClassName">
+            <summary>
+            Gets the real name of the class to which this window belongs.
+            </summary>
+            <value>
+            The the real name of the class to which this window belongs.
             </value>
         </member>
         <member name="P:ShellBoost.Core.Utilities.Win32Window.Text">
@@ -26961,6 +27202,14 @@
             </summary>
             <value>
             The child and grand child windows.
+            </value>
+        </member>
+        <member name="P:ShellBoost.Core.Utilities.Win32Window.ProcessWindows">
+            <summary>
+            Gets the list of all windows that belong to this window's process.
+            </summary>
+            <value>
+            A list of windows.
             </value>
         </member>
         <member name="P:ShellBoost.Core.Utilities.Win32Window.Rect">
@@ -27692,6 +27941,34 @@
             <param name="handle">The window handle.</param>
             <returns>A list of window handles.</returns>
         </member>
+        <member name="M:ShellBoost.Core.Utilities.WindowsUtilities.EnumerateProcessWindows(System.Int32)">
+            <summary>
+            Enumerates the child windows that belong to the specified parent window.
+            </summary>
+            <param name="processId">The identifier of the process whose windows are to be enumerated.</param>
+            <returns>
+            A list of windows.
+            </returns>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.WindowsUtilities.EnumerateProcessWindows(System.Diagnostics.Process)">
+            <summary>
+            Enumerates the child windows that belong to the specified parent window.
+            </summary>
+            <param name="process">The process whose windows are to be enumerated.</param>
+            <returns>
+            A list of windows.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">process is null.</exception>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.WindowsUtilities.EnumerateThreadWindows(System.Int32)">
+            <summary>
+            Enumerates the child windows that belong to the specified parent window.
+            </summary>
+            <param name="threadId">The identifier of the thread whose windows are to be enumerated.</param>
+            <returns>
+            A list of windows.
+            </returns>
+        </member>
         <member name="M:ShellBoost.Core.Utilities.WindowsUtilities.EnumerateChildWindows(System.IntPtr)">
             <summary>
             Enumerates the child windows that belong to the specified parent window.
@@ -28368,6 +28645,13 @@
         <member name="M:ShellBoost.Core.Utilities.WindowsUtilities.GetWindowClass(System.IntPtr)">
             <summary>
             Retrieves the name of the class to which the specified window belongs.
+            </summary>
+            <param name="handle">The window handle.</param>
+            <returns>A string.</returns>
+        </member>
+        <member name="M:ShellBoost.Core.Utilities.WindowsUtilities.GetRealWindowClass(System.IntPtr)">
+            <summary>
+            Retrieves the real name of the class to which the specified window belongs.
             </summary>
             <param name="handle">The window handle.</param>
             <returns>A string.</returns>
@@ -30090,6 +30374,20 @@
             <param name="throwOnError">true to throw error; otherwise false.</param>
             <returns>The parent folder or null.</returns>
         </member>
+        <member name="M:ShellBoost.Core.WindowsShell.CoreShellFolder.Initialize(ShellBoost.Core.IWithIdList,System.Boolean)">
+            <summary>
+            Initializes the Shell Folder.
+            </summary>
+            <param name="idList">The identifier list.</param>
+            <param name="throwOnError">true to throw error; otherwise false.</param>
+        </member>
+        <member name="M:ShellBoost.Core.WindowsShell.CoreShellFolder.Initialize(System.IntPtr,System.Boolean)">
+            <summary>
+            Initializes the Shell Folder.
+            </summary>
+            <param name="pidl">The absolute PIDL.</param>
+            <param name="throwOnError">true to throw error; otherwise false.</param>
+        </member>
         <member name="M:ShellBoost.Core.WindowsShell.CoreShellFolder.BindToObject``1(ShellBoost.Core.IWithIdList,System.Runtime.InteropServices.ComTypes.IBindCtx,System.Boolean)">
             <summary>
             Retrieves a handler, typically the Shell folder object that implements IShellFolder for a particular item.
@@ -30515,6 +30813,17 @@
             <param name="throwOnError">true to throw error; otherwise false.</param>
             <returns>
             An output value. Depends on the command group and identifier. Can be null.
+            </returns>
+        </member>
+        <member name="M:ShellBoost.Core.WindowsShell.CoreShellFolder.FromClsid(System.Guid,ShellBoost.Core.WindowsShell.CLSCTX,System.Boolean)">
+            <summary>
+            Gets a Folder instance from a native COM object.
+            </summary>
+            <param name="clsid">The COM object class identifier.</param>
+            <param name="context">The context.</param>
+            <param name="throwOnError">if set to <c>true</c> errors may be throw.</param>
+            <returns>
+            An Item instance or null.
             </returns>
         </member>
         <member name="T:ShellBoost.Core.WindowsShell.TPM">
@@ -34615,7 +34924,7 @@
         </member>
         <member name="F:ShellBoost.Core.WindowsShell.FOLDERFLAGS.FWF_SINGLESEL">
             <summary>
-            Do not allow more than a single item to be selected. This is used in the common dialog boxes.
+            Do not allow more than a single item to be selected. This is used in the Common Dialog boxes.
             </summary>
         </member>
         <member name="F:ShellBoost.Core.WindowsShell.FOLDERFLAGS.FWF_NOSUBFOLDERS">
@@ -38337,6 +38646,18 @@
             </summary>
             <param name="throwOnError">true to throw error; otherwise false.</param>
             <returns>An instance of the IStorageItem class or null if an error occurred.</returns>
+        </member>
+        <member name="M:ShellBoost.Core.WindowsShell.Item.FromClsid(System.Guid,System.Boolean,ShellBoost.Core.WindowsShell.CLSCTX,System.Boolean)">
+            <summary>
+            Gets an Item instance from a native COM object.
+            </summary>
+            <param name="clsid">The COM object class identifier.</param>
+            <param name="noFolder">if set to <c>true</c> the method will never return a Folder instance.</param>
+            <param name="context">The context.</param>
+            <param name="throwOnError">if set to <c>true</c> errors may be throw.</param>
+            <returns>
+            An Item instance or null.
+            </returns>
         </member>
         <member name="M:ShellBoost.Core.WindowsShell.Item.FromNativeObject(System.Object,System.Boolean)">
             <summary>
@@ -57869,6 +58190,14 @@
             Initializes a new instance of the <see cref="T:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore"/> class.
             </summary>
         </member>
+        <member name="P:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.NativeObject">
+            <summary>
+            Gets the underlying Shell native object (IPropertyStore, INamedPropertyStore and IPropertyBag).
+            </summary>
+            <value>
+            The native object.
+            </value>
+        </member>
         <member name="P:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.Count">
             <summary>
             Gets the count of properties in the store.
@@ -57877,9 +58206,17 @@
         </member>
         <member name="P:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.NamedCount">
             <summary>
-            Gets the count of named properties in the store.
+            Gets the count of named properties in the store using the underlying INamedPropertyStore implementation.
             </summary>
             <value>The count.</value>
+        </member>
+        <member name="P:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.NamedProperties">
+            <summary>
+            Gets the named properties using the underlying INamedPropertyStore implementation.
+            </summary>
+            <value>
+            The named properties.
+            </value>
         </member>
         <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.GetValue``1(System.Int32,``0)">
             <summary>
@@ -57892,7 +58229,7 @@
         </member>
         <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.GetNamedValue``1(System.Int32,``0)">
             <summary>
-            Gets a typed named property value.
+            Gets a typed named property value using the underlying INamedPropertyStore implementation.
             </summary>
             <typeparam name="T">The expected type.</typeparam>
             <param name="index">The property index.</param>
@@ -57910,7 +58247,16 @@
         </member>
         <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.GetNamedValue``1(System.String,``0)">
             <summary>
-            Gets a typed named property value.
+            Gets a typed named property value using the underlying INamedPropertyStore implementation.
+            </summary>
+            <typeparam name="T">The expected type.</typeparam>
+            <param name="name">The property name.</param>
+            <param name="defaultValue">The default value to use if the property is not found in the store.</param>
+            <returns>The property value.</returns>
+        </member>
+        <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.GetBagValue``1(System.String,``0)">
+            <summary>
+            Gets a typed named property value using the underlying IPropertyBag implementation.
             </summary>
             <typeparam name="T">The expected type.</typeparam>
             <param name="name">The property name.</param>
@@ -57919,14 +58265,14 @@
         </member>
         <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.GetPropertyKey(System.Int32)">
             <summary>
-            Gets a property key at the given index.
+            Gets a property key at the given index using the underlying INamedPropertyStore implementation.
             </summary>
             <param name="index">The property index.</param>
             <returns>An instance of the PropertyKey struct.</returns>
         </member>
         <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.GetPropertyName(System.Int32)">
             <summary>
-            Gets a named property name at the given index.
+            Gets a named property name at the given index using the underlying INamedPropertyStore implementation.
             </summary>
             <param name="index">The property index.</param>
             <returns>A property name.</returns>
@@ -57940,7 +58286,7 @@
         </member>
         <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.GetNamedValue(System.Int32)">
             <summary>
-            Gets a property value.
+            Gets a property value using the underlying INamedPropertyStore implementation.
             </summary>
             <param name="index">The property index.</param>
             <returns>A value.</returns>
@@ -57986,7 +58332,15 @@
         </member>
         <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.TryGetNamedValue(System.String,System.Object@)">
             <summary>
-            Gets the value of a named property.
+            Gets the value of a named property using the underlying INamedPropertyStore implementation.
+            </summary>
+            <param name="name">The property name.</param>
+            <param name="value">The value.</param>
+            <returns><c>true</c> if the property was found, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.TryGetBagValue(System.String,System.Object@)">
+            <summary>
+            Gets the value of a named property using the underlying IPropertyBag implementation.
             </summary>
             <param name="name">The property name.</param>
             <param name="value">The value.</param>
@@ -58009,7 +58363,14 @@
         </member>
         <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.SetNamedValue(System.String,System.Object)">
             <summary>
-            Sets a named property value.
+            Sets a named property value using the underlying INamedPropertyStore implementation.
+            </summary>
+            <param name="name">The property name.</param>
+            <param name="value">The value.</param>
+        </member>
+        <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.SetBagValue(System.String,System.Object)">
+            <summary>
+            Sets a named property value using the underlying IPropertyBag implementation.
             </summary>
             <param name="name">The property name.</param>
             <param name="value">The value.</param>
@@ -58071,6 +58432,12 @@
         <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.GetEnumerator">
             <summary>
             Returns an enumerator that iterates through the properties collection.
+            </summary>
+            <returns>An enumerator that can be used to iterate through the properties collection.</returns>
+        </member>
+        <member name="M:ShellBoost.Core.WindowsPropertySystem.MemoryPropertyStore.GetNamedEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the properties collection using the underlying INamedPropertyStore implementation.
             </summary>
             <returns>An enumerator that can be used to iterate through the properties collection.</returns>
         </member>
